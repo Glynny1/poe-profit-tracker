@@ -12,6 +12,8 @@ import { StrategyControls } from "@/components/StrategyControls";
 import { SellForm } from "@/components/SellForm";
 import { FinishRunForm } from "@/components/FinishRunForm";
 import { RunResult, type RunLine } from "@/components/RunResult";
+import { ShareCodeBox } from "@/components/ShareCodeBox";
+import { encodeShareCode } from "@/domain/shareCode";
 import { deleteStrategyInput, deleteSale } from "@/app/actions";
 
 /**
@@ -128,6 +130,18 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
   const { icons } = strategy.endSnapshotId
     ? await getHoldings(strategy.endSnapshotId)
     : { icons: await getCurrencyIcons(user.league) };
+
+  const shareCode = encodeShareCode({
+    name: strategy.name,
+    mapsRun: strategy.mapsRun,
+    notes: strategy.notes ?? undefined,
+    items: strategy.inputs.map((i) => ({
+      priceKey: i.priceKey,
+      displayName: i.displayName,
+      qty: i.qty,
+      unitCostMicro: i.unitCostMicro.toString(),
+    })),
+  });
 
   const runResult = await buildRunResult(user.id, strategy.baselineSnapshotId, strategy.endSnapshotId, rate);
 
@@ -277,6 +291,12 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
       {runResult && (
         <Panel title="What the run produced" subtitle="Valued at the prices when you finished">
           <RunResult {...runResult} icons={icons} mapsRun={strategy.mapsRun} />
+        </Panel>
+      )}
+
+      {strategy.inputs.length > 0 && (
+        <Panel title="Share this strategy" variant="quiet">
+          <ShareCodeBox code={shareCode} itemCount={strategy.inputs.length} />
         </Panel>
       )}
 

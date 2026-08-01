@@ -8,6 +8,7 @@ import { ImportError, mergeTabs, parseStashJson } from "@/lib/stashImport";
 import { createSnapshot } from "@/lib/services/snapshots";
 import { getFreshPriceBookId, refreshPriceBook } from "@/lib/services/priceBook";
 import { chaosToMicro } from "@/domain/money";
+import { decodeShareCode, ShareCodeError } from "@/domain/shareCode";
 import type { ParsedTab } from "@/domain/snapshot";
 
 export interface ActionState {
@@ -480,6 +481,92 @@ export async function finishRun(_prev: ActionState, form: FormData): Promise<Act
 
   revalidatePath(`/strategies/${strategyId}`);
   return { ok: "Run finished. Everything that changed is listed below." };
+}
+
+/**
+ * Create a strategy from someone else's share code.
+ *
+ * Prices are the interesting decision here. The code carries what the author
+ * paid, but adopting those as your own cost basis would be wrong: you did not
+ * pay them, and the whole point of freezing a price is that it records YOUR
+ * purchase. So today's prices are the default, and keeping the author's is an
+ * explicit choice for when you are reproducing their run exactly.
+ */
+export async function importStrategyCode(
+  _prev: ActionState,
+  form: FormData,
+): Promise<ActionState> {
+  const user = await requireUser();
+  const raw = String(form.get("code") ?? "");
+  const keepPrices = form.get("prices") === "shared";
+
+  let payload;
+  try {
+    payload = decodeShareCode(raw);
+  } catch (e) {
+    return { error: e instanceof ShareCodeError ? e.message : "Could not read that share code." };
+  }
+
+  const priceBookId = await getFreshPriceBookId(user.league);
+  const keys = [...new Set(payload.items.map((i) => i.priceKey))];
+  const prices = await prisma.price.findMany({
+    where: { priceBookId, priceKey: { in: keys } },
+    select: { priceKey: true, displayName: true, icon: true, chaosMicro: true },
+  });
+  const byKey = new Map(prices.map((p) => [p.priceKey, p]));
+
+  const baseline = await prisma.snapshot.findFirst({
+    where: { userId: user.id, league: user.league },
+    orderBy: { capturedAt: "desc" },
+    select: { id: true },
+  });
+  if (baseline) {
+    await prisma.snapshot.update({ where: { id: baseline.id }, data: { pinned: true } });
+  }
+
+  const strategy = await prisma.strategy.create({
+    data: {
+      userId: user.id,
+      league: user.league,
+      name: payload.name,
+      notes: payload.notes ?? null,
+      mapsRun: payload.mapsRun,
+      baselineSnapshotId: baseline?.id ?? null,
+    },
+  });
+
+  let repriced = 0;
+  let unpriced = 0;
+  await prisma.strategyInput.createMany({
+    data: payload.items.map((i) => {
+      const row = byKey.get(i.priceKey);
+      const shared = BigInt(i.unitCostMicro);
+      let unitCostMicro = shared;
+      if (!keepPrices) {
+        if (row) {
+          if (row.chaosMicro !== shared) repriced++;
+          unitCostMicro = row.chaosMicro;
+        } else {
+          // No live price, so the author's figure is better than nothing.
+          unpriced++;
+        }
+      }
+      return {
+        strategyId: strategy.id,
+        priceKey: i.priceKey,
+        // Prefer our own price book's name so a shared code cannot rename an
+        // item in your database.
+        displayName: row?.displayName ?? i.displayName,
+        icon: row?.icon ?? null,
+        qty: i.qty,
+        unitCostMicro,
+        priceBookId: keepPrices ? null : priceBookId,
+        isManualOverride: keepPrices,
+      };
+    }),
+  });
+
+  redirect(`/strategies/${strategy.id}?imported=${payload.items.length}&repriced=${repriced}&unpriced=${unpriced}`);
 }
 
 /** Re-open a finished run, for when the closing snapshot was taken too early. */

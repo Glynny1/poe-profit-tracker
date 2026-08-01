@@ -5,6 +5,7 @@ import { getLatestDivineRate } from "@/lib/services/priceBook";
 import { formatMoney } from "@/domain/money";
 import { Empty, Panel } from "@/components/ui";
 import { NewStrategyForm } from "@/components/NewStrategyForm";
+import { ImportCodeForm } from "@/components/ImportCodeForm";
 
 export default async function StrategiesPage() {
   const user = await requireUser();
@@ -24,6 +25,14 @@ export default async function StrategiesPage() {
         subtitle="Records what you spend at the price you paid, so later price moves can't distort the result."
       >
         <NewStrategyForm />
+      </Panel>
+
+      <Panel
+        title="Import a share code"
+        variant="quiet"
+        subtitle="Recreate someone else's cost sheet: the same items and quantities, priced however you choose."
+      >
+        <ImportCodeForm />
       </Panel>
 
       <Panel title="Your strategies">
