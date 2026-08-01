@@ -8,7 +8,7 @@ export function CurrencyToggle({ current }: { current: "CHAOS" | "DIVINE" }) {
   const [pending, start] = useTransition();
 
   return (
-    <div className="flex rounded-lg border border-[#2a3346] p-0.5 text-xs">
+    <div className="flex rounded-lg border border-[#262c3a] p-0.5 text-xs">
       {(["CHAOS", "DIVINE"] as const).map((c) => (
         <button
           key={c}
@@ -16,8 +16,8 @@ export function CurrencyToggle({ current }: { current: "CHAOS" | "DIVINE" }) {
           onClick={() => start(() => setCurrency(c))}
           className={`rounded-md px-2.5 py-1 transition-colors ${
             current === c
-              ? "bg-[#c8aa6e] font-semibold text-[#0b0d12]"
-              : "text-[#8b97ad] hover:text-[#e6ebf5]"
+              ? "bg-[#c8aa6e] font-semibold text-[#0a0c11]"
+              : "text-[#7d8798] hover:text-[#e4e8f0]"
           }`}
         >
           {c === "CHAOS" ? "chaos" : "divine"}

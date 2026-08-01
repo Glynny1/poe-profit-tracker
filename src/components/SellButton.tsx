@@ -30,7 +30,7 @@ export function SellButton({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md border border-[#2a3346] px-2.5 py-1 text-xs text-[#8b97ad] transition-colors hover:border-[#c8aa6e] hover:text-[#c8aa6e]"
+        className="rounded-md border border-[#262c3a] px-2.5 py-1 text-xs text-[#7d8798] transition-colors hover:border-[#c8aa6e] hover:text-[#c8aa6e]"
       >
         Sell
       </button>
@@ -40,12 +40,12 @@ export function SellButton({
   return (
     <form
       action={action}
-      className="mt-2 space-y-3 rounded-lg border border-[#c8aa6e]/40 bg-[#1b2130] p-3 text-left"
+      className="mt-2 space-y-3 rounded-lg border border-[#c8aa6e]/40 bg-[#1d222d] p-3 text-left"
     >
       <input type="hidden" name="priceKey" value={priceKey} />
       {strategyId && <input type="hidden" name="strategyId" value={strategyId} />}
 
-      <p className="text-sm text-[#e6ebf5]">
+      <p className="text-sm text-[#e4e8f0]">
         Sell <strong>{displayName}</strong>
       </p>
       {state.error && <Alert kind="error">{state.error}</Alert>}
@@ -62,7 +62,7 @@ export function SellButton({
         </div>
       </div>
 
-      <p className="text-xs text-[#8b97ad]">
+      <p className="text-xs text-[#7d8798]">
         Leave the price blank to freeze today&apos;s market price. Fill it in if you got something
         different. That&apos;s what makes the historical figure real.
       </p>

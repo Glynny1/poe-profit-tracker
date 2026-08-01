@@ -39,14 +39,14 @@ export default async function StrategiesPage() {
                 <li key={s.id}>
                   <Link
                     href={`/strategies/${s.id}`}
-                    className="flex flex-wrap items-center gap-x-6 gap-y-1 rounded-lg border border-[#2a3346] px-4 py-3 transition-colors hover:bg-[#1b2130]"
+                    className="flex flex-wrap items-center gap-x-6 gap-y-1 rounded-lg border border-[#262c3a] px-4 py-3 transition-colors hover:bg-[#1d222d]"
                   >
-                    <span className="flex-1 font-medium text-[#e6ebf5]">
+                    <span className="flex-1 font-medium text-[#e4e8f0]">
                       {s.name}
-                      {s.endedAt && <span className="ml-2 text-xs text-[#8b97ad]">closed</span>}
+                      {s.endedAt && <span className="ml-2 text-xs text-[#7d8798]">closed</span>}
                     </span>
-                    <span className="text-sm text-[#8b97ad]">{s.mapsRun} maps</span>
-                    <span className="text-sm text-[#8b97ad]">cost {fmt(cost)}</span>
+                    <span className="text-sm text-[#7d8798]">{s.mapsRun} maps</span>
+                    <span className="text-sm text-[#7d8798]">cost {fmt(cost)}</span>
                     <span className="text-sm text-[#4ade80]">realised {fmt(realised)}</span>
                     <span
                       className={`text-sm font-semibold ${net >= 0n ? "text-[#4ade80]" : "text-[#f87171]"}`}

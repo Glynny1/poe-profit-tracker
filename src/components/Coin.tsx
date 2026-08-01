@@ -27,7 +27,7 @@ export function Coin({
       {icon ? (
         <img src={icon} alt={alt} title={alt} className={`${px} self-center object-contain`} />
       ) : (
-        <span className="text-[#8b97ad]">{alt === "Divine Orb" ? "div" : "c"}</span>
+        <span className="text-[#7d8798]">{alt === "Divine Orb" ? "div" : "c"}</span>
       )}
     </span>
   );
@@ -90,7 +90,7 @@ export function ChaosAndDivine({
         {prefix}
         {fmt(chaos)}
       </Coin>
-      <span className="text-[#8b97ad]">/</span>
+      <span className="text-[#7d8798]">/</span>
       <Coin icon={icons.divine} alt="Divine Orb" size={size}>
         {prefix}
         {fmt(divine)}

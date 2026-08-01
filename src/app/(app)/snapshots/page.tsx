@@ -21,8 +21,8 @@ export default async function SnapshotsPage() {
         <Empty>No snapshots yet.</Empty>
       ) : (
         <table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-            <tr className="border-b border-[#2a3346]">
+          <thead className="text-left text-xs uppercase tracking-wide text-[#7d8798]">
+            <tr className="border-b border-[#262c3a]">
               <th className="pb-2 font-medium">Taken</th>
               <th className="pb-2 text-right font-medium">Net worth</th>
               <th className="pb-2 text-right font-medium">Items</th>
@@ -36,33 +36,33 @@ export default async function SnapshotsPage() {
               const prev = snapshots[i + 1];
               const delta = prev ? s.totalMicro - prev.totalMicro : null;
               return (
-                <tr key={s.id} className="border-b border-[#2a3346]/50 last:border-0">
+                <tr key={s.id} className="border-b border-[#262c3a]/50 last:border-0">
                   <td className="py-2">
                     {prev ? (
                       <Link
                         href={`/snapshots/${prev.id}/${s.id}`}
-                        className="text-[#e6ebf5] hover:text-[#c8aa6e] hover:underline"
+                        className="text-[#e4e8f0] hover:text-[#c8aa6e] hover:underline"
                       >
                         {s.capturedAt.toLocaleString("en-GB")}
                       </Link>
                     ) : (
-                      <span className="text-[#e6ebf5]">{s.capturedAt.toLocaleString("en-GB")}</span>
+                      <span className="text-[#e4e8f0]">{s.capturedAt.toLocaleString("en-GB")}</span>
                     )}
                     {s.pinned && <span className="ml-2 text-xs text-[#c8aa6e]">pinned</span>}
                   </td>
                   <td className="py-2 text-right">{formatMoney(s.totalMicro, user.displayCurrency, rate)}</td>
-                  <td className="py-2 text-right text-[#8b97ad]">{s.itemCount.toLocaleString()}</td>
-                  <td className="py-2 text-right text-[#8b97ad]">{s.unpricedCount}</td>
-                  <td className="py-2 text-right text-[#8b97ad]">{s.tabIds.length}</td>
+                  <td className="py-2 text-right text-[#7d8798]">{s.itemCount.toLocaleString()}</td>
+                  <td className="py-2 text-right text-[#7d8798]">{s.unpricedCount}</td>
+                  <td className="py-2 text-right text-[#7d8798]">{s.tabIds.length}</td>
                   <td
                     className={`py-2 text-right ${
                       delta == null
-                        ? "text-[#8b97ad]"
+                        ? "text-[#7d8798]"
                         : delta > 0n
                           ? "text-[#4ade80]"
                           : delta < 0n
                             ? "text-[#f87171]"
-                            : "text-[#8b97ad]"
+                            : "text-[#7d8798]"
                     }`}
                   >
                     {delta == null

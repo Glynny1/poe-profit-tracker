@@ -71,7 +71,7 @@ export function StashUrlHelper({
 
       <div>
         <Label>Your URL</Label>
-        <div className="rounded-lg border border-[#2a3346] bg-[#0b0d12] p-3">
+        <div className="rounded-lg border border-[#262c3a] bg-[#0a0c11] p-3">
           <code className="block break-all text-xs text-[#c8aa6e]">
             {trimmed ? url : "Enter your account name above."}
           </code>
@@ -92,7 +92,7 @@ export function StashUrlHelper({
         </Button>
       </div>
 
-      <p className="text-sm text-[#8b97ad]">
+      <p className="text-sm text-[#7d8798]">
         Open it while logged in to pathofexile.com, copy the whole response, and paste it above.
         Then bump the tab number and repeat. Imports accumulate, so you can do a few at a time.
       </p>

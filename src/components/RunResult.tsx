@@ -127,14 +127,14 @@ function RunColumn({
 
   return (
     <div>
-      <h3 className="mb-3 text-sm font-semibold text-[#e6ebf5]">{title}</h3>
+      <h3 className="mb-3 text-sm font-semibold text-[#e4e8f0]">{title}</h3>
       {lines.length === 0 ? (
         <Empty>Nothing.</Empty>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-              <tr className="border-b border-[#2a3346]">
+            <thead className="text-left text-xs uppercase tracking-wide text-[#7d8798]">
+              <tr className="border-b border-[#262c3a]">
                 <th className="pb-2 font-medium">Item</th>
                 <th className="pb-2 text-right font-medium">Qty</th>
                 <th className="pb-2 text-right font-medium">Value</th>
@@ -142,7 +142,7 @@ function RunColumn({
             </thead>
             <tbody>
               {lines.map((l) => (
-                <tr key={l.itemKey} className="border-b border-[#2a3346]/50 last:border-0">
+                <tr key={l.itemKey} className="border-b border-[#262c3a]/50 last:border-0">
                   <td className="py-2">
                     <span className="flex items-center gap-2.5">
                       {l.icon ? (
@@ -153,12 +153,12 @@ function RunColumn({
                           loading="lazy"
                         />
                       ) : (
-                        <span className="size-6 shrink-0 rounded bg-[#1b2130]" />
+                        <span className="size-6 shrink-0 rounded bg-[#1d222d]" />
                       )}
-                      <span className="text-[#e6ebf5]">{l.displayName}</span>
+                      <span className="text-[#e4e8f0]">{l.displayName}</span>
                     </span>
                   </td>
-                  <td className="py-2 text-right text-[#8b97ad]">
+                  <td className="py-2 text-right text-[#7d8798]">
                     {l.qtyDelta > 0 ? `+${l.qtyDelta}` : l.qtyDelta}
                   </td>
                   <td className={`py-2 text-right ${colour}`}>

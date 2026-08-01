@@ -38,7 +38,7 @@ export default async function SetupPage() {
         subtitle="Only ticked tabs are valued and diffed. Changing this later won't break your history. The difference is reported as a coverage change, not as profit."
       >
         {tabs.length === 0 ? (
-          <p className="text-sm text-[#8b97ad]">Import some JSON first and your tabs appear here.</p>
+          <p className="text-sm text-[#7d8798]">Import some JSON first and your tabs appear here.</p>
         ) : (
           <TabPicker
             tabs={tabs.map((t) => ({

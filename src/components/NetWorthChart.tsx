@@ -21,8 +21,8 @@ export interface Point {
 // lightness band and under the chroma floor, so it reads washed out against the
 // panel. It stays as chrome for headings and buttons, where it is text.
 const SERIES = "#c98500";
-const GRID = "#2a3346";
-const MUTED = "#8b97ad";
+const GRID = "#262c3a";
+const MUTED = "#7d8798";
 
 export function NetWorthChart({
   data,
@@ -47,13 +47,6 @@ export function NetWorthChart({
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-          <defs>
-            <linearGradient id="nw" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={SERIES} stopOpacity={0.28} />
-              <stop offset="100%" stopColor={SERIES} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-
           {/* Recessive: horizontal only, no vertical clutter behind the line. */}
           <CartesianGrid stroke={GRID} strokeDasharray="3 3" vertical={false} />
 
@@ -82,13 +75,13 @@ export function NetWorthChart({
           <Tooltip
             cursor={{ stroke: MUTED, strokeWidth: 1, strokeDasharray: "4 4" }}
             contentStyle={{
-              background: "#1b2130",
+              background: "#161a23",
               border: `1px solid ${GRID}`,
               borderRadius: 8,
               fontSize: 13,
             }}
             // Values wear text tokens, never the series colour.
-            itemStyle={{ color: "#e6ebf5" }}
+            itemStyle={{ color: "#e4e8f0" }}
             labelStyle={{ color: MUTED, marginBottom: 4 }}
             labelFormatter={(t) =>
               new Date(Number(t)).toLocaleString("en-GB", {
@@ -106,10 +99,11 @@ export function NetWorthChart({
             dataKey="display"
             stroke={SERIES}
             strokeWidth={2}
-            fill="url(#nw)"
+            fill={SERIES}
+            fillOpacity={0.12}
             // No dot per point: a 60-snapshot series would become a bead string.
             dot={false}
-            activeDot={{ r: 4, fill: SERIES, stroke: "#141821", strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: SERIES, stroke: "#161a23", strokeWidth: 2 }}
           />
         </AreaChart>
       </ResponsiveContainer>

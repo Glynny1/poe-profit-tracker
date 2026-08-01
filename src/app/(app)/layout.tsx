@@ -3,14 +3,15 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { logout } from "@/app/actions";
 import { CurrencyToggle } from "@/components/CurrencyToggle";
+import { NavLink } from "@/components/NavLink";
 
 const NAV = [
   { href: "/", label: "Dashboard" },
-  { href: "/snapshots", label: "Snapshots" },
-  { href: "/items", label: "Items" },
   { href: "/strategies", label: "Strategies" },
-  { href: "/prices", label: "Prices" },
+  { href: "/items", label: "Items" },
+  { href: "/snapshots", label: "Snapshots" },
   { href: "/setup", label: "Import" },
+  { href: "/prices", label: "Prices" },
   { href: "/settings", label: "Settings" },
 ];
 
@@ -20,37 +21,45 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-[#2a3346] bg-[#141821]">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-6 py-3">
-          <Link href="/" className="font-semibold text-[#c8aa6e]">
-            PoE Profit Tracker
+      {/* The header sits on the page colour with a hairline rule rather than its
+          own fill, so the panels below are the only raised surfaces. */}
+      <header className="sticky top-0 z-30 border-b border-[#262c3a] bg-[#0a0c11]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-3 px-6 py-3">
+          <Link
+            href="/"
+            className="flex items-baseline gap-2 rounded-md text-[#e4e8f0] transition-colors duration-150 ease-out hover:text-[#c8aa6e]"
+          >
+            <span className="font-semibold tracking-tight">Profit Tracker</span>
+            <span className="t-caption text-[#7d8798]">{user.league}</span>
           </Link>
-          <nav className="flex flex-1 flex-wrap gap-1 text-sm">
+
+          <nav className="-mx-2 flex flex-1 flex-wrap items-center">
             {NAV.map((n) => (
-              <Link
-                key={n.href}
-                href={n.href}
-                className="rounded-lg px-3 py-1.5 text-[#8b97ad] transition-colors hover:bg-[#1b2130] hover:text-[#e6ebf5]"
-              >
+              <NavLink key={n.href} href={n.href}>
                 {n.label}
-              </Link>
+              </NavLink>
             ))}
           </nav>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-4">
             <CurrencyToggle current={user.displayCurrency} />
-            <span className="text-sm text-[#8b97ad]">{user.username}</span>
+            <span className="t-caption text-[#7d8798]">{user.username}</span>
             <form action={logout}>
-              <button className="text-sm text-[#8b97ad] hover:text-[#f87171]">Sign out</button>
+              <button className="t-caption rounded-md text-[#7d8798] transition-colors duration-150 ease-out hover:text-[#f87171]">
+                Sign out
+              </button>
             </form>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 p-6">{children}</main>
+      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">{children}</main>
 
-      <footer className="border-t border-[#2a3346] px-6 py-4 text-center text-xs text-[#8b97ad]">
-        Prices by poe.ninja. This product isn&apos;t affiliated with or endorsed by Grinding Gear
-        Games in any way.
+      <footer className="mt-8 border-t border-[#262c3a] px-6 py-5">
+        <p className="t-caption mx-auto max-w-6xl text-[#7d8798]">
+          Prices by poe.ninja. This product isn&apos;t affiliated with or endorsed by Grinding Gear
+          Games in any way.
+        </p>
       </footer>
     </div>
   );

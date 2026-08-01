@@ -22,7 +22,7 @@ export function NewStrategyForm() {
           <Input name="notes" placeholder="5 scarab slots, Fruiting astrolabe" />
         </div>
       </div>
-      <p className="text-xs text-[#8b97ad]">
+      <p className="text-xs text-[#7d8798]">
         Your most recent snapshot becomes the baseline and is pinned, so it can never be cleaned up
         while the strategy still needs it.
       </p>

@@ -148,33 +148,40 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
           />
         }
       >
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat label="Cost" value={fmt(costMicro)} hint="Frozen at what you paid" />
-          <Stat
-            label="Realised"
-            value={fmt(realisedMicro)}
-            tone="gain"
-            hint="Frozen at each sale"
-          />
-          <Stat
-            label="Still held"
-            value={fmt(unrealisedMicro)}
-            tone="drift"
-            hint="Valued at today's price"
-          />
+        {/* Net is the question this page exists to answer, so it is the only
+            big number and the three inputs to it step down beside it. */}
+        <div className="grid gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <Stat
             label="Net"
+            size="hero"
             value={fmt(netMicro, true)}
             tone={netMicro >= 0n ? "gain" : "loss"}
             hint={
               [
                 roi != null ? `${roi.toFixed(2)}x ROI` : null,
-                perMap != null ? `${fmt(perMap)} / map` : null,
+                perMap != null ? `${fmt(perMap)} per map` : null,
               ]
                 .filter(Boolean)
-                .join(" | ") || "realised - cost"
+                .join(" | ") || "Realised minus cost"
             }
           />
+          <div className="grid gap-6 sm:grid-cols-3 lg:border-l lg:border-[#262c3a] lg:pl-10">
+            <Stat label="Cost" size="sm" value={fmt(costMicro)} hint="Frozen at what you paid" />
+            <Stat
+              label="Realised"
+              size="sm"
+              value={fmt(realisedMicro)}
+              tone="gain"
+              hint="Frozen at each sale"
+            />
+            <Stat
+              label="Still held"
+              size="sm"
+              value={fmt(unrealisedMicro)}
+              tone="drift"
+              hint="At today's price"
+            />
+          </div>
         </div>
       </Panel>
 
@@ -201,8 +208,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
                 reading it as profit when it is nothing of the sort. Current value
                 of what you still hold is in the P&L card above, where it belongs. */}
             <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-                <tr className="border-b border-[#2a3346]">
+              <thead className="text-left text-xs uppercase tracking-wide text-[#7d8798]">
+                <tr className="border-b border-[#262c3a]">
                   <th className="pb-2 font-medium">Item</th>
                   <th className="pb-2 text-right font-medium">Qty</th>
                   <th className="pb-2 text-right font-medium">Paid each</th>
@@ -212,7 +219,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
               </thead>
               <tbody>
                 {strategy.inputs.map((i) => (
-                  <tr key={i.id} className="border-b border-[#2a3346]/50 last:border-0">
+                  <tr key={i.id} className="border-b border-[#262c3a]/50 last:border-0">
                     <td className="py-2">
                       <span className="flex items-center gap-2.5">
                         {i.icon ? (
@@ -224,20 +231,20 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
                             loading="lazy"
                           />
                         ) : (
-                          <span className="size-6 shrink-0 rounded bg-[#1b2130]" />
+                          <span className="size-6 shrink-0 rounded bg-[#1d222d]" />
                         )}
-                        <span className="text-[#e6ebf5]">{i.displayName}</span>
+                        <span className="text-[#e4e8f0]">{i.displayName}</span>
                         {i.isManualOverride && (
                           <span className="text-xs text-[#c8aa6e]">your price</span>
                         )}
                       </span>
                     </td>
-                    <td className="py-2 text-right text-[#8b97ad]">{i.qty}</td>
+                    <td className="py-2 text-right text-[#7d8798]">{i.qty}</td>
                     <td className="py-2 text-right">{fmt(i.unitCostMicro)}</td>
                     <td className="py-2 text-right">{fmt(BigInt(i.qty) * i.unitCostMicro)}</td>
                     <td className="py-2 text-right">
                       <form action={deleteStrategyInput.bind(null, i.id)}>
-                        <button className="text-xs text-[#8b97ad] hover:text-[#f87171]">
+                        <button className="text-xs text-[#7d8798] hover:text-[#f87171]">
                           remove
                         </button>
                       </form>
@@ -274,15 +281,15 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
       )}
 
       <Panel title="Returns" subtitle="Record what you actually sold, at the price you got.">
-        <div className="mb-6 border-b border-[#2a3346] pb-6">
+        <div className="mb-6 border-b border-[#262c3a] pb-6">
           <SellForm strategyId={strategy.id} />
         </div>
         {strategy.sales.length === 0 ? (
           <Empty>No sales recorded against this strategy yet.</Empty>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-              <tr className="border-b border-[#2a3346]">
+            <thead className="text-left text-xs uppercase tracking-wide text-[#7d8798]">
+              <tr className="border-b border-[#262c3a]">
                 <th className="pb-2 font-medium">Sold</th>
                 <th className="pb-2 font-medium">Item</th>
                 <th className="pb-2 text-right font-medium">Qty</th>
@@ -293,17 +300,17 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
             </thead>
             <tbody>
               {strategy.sales.map((s) => (
-                <tr key={s.id} className="border-b border-[#2a3346]/50 last:border-0">
-                  <td className="py-2 text-[#8b97ad]">{s.soldAt.toLocaleDateString("en-GB")}</td>
-                  <td className="py-2 text-[#e6ebf5]">{s.displayName}</td>
-                  <td className="py-2 text-right text-[#8b97ad]">{s.qty}</td>
-                  <td className="py-2 text-right text-[#8b97ad]">{fmt(s.unitPriceMicro)}</td>
+                <tr key={s.id} className="border-b border-[#262c3a]/50 last:border-0">
+                  <td className="py-2 text-[#7d8798]">{s.soldAt.toLocaleDateString("en-GB")}</td>
+                  <td className="py-2 text-[#e4e8f0]">{s.displayName}</td>
+                  <td className="py-2 text-right text-[#7d8798]">{s.qty}</td>
+                  <td className="py-2 text-right text-[#7d8798]">{fmt(s.unitPriceMicro)}</td>
                   <td className="py-2 text-right text-[#4ade80]">
                     {fmt(BigInt(s.qty) * s.unitPriceMicro)}
                   </td>
                   <td className="py-2 text-right">
                     <form action={deleteSale.bind(null, s.id)}>
-                      <button className="text-xs text-[#8b97ad] hover:text-[#f87171]">remove</button>
+                      <button className="text-xs text-[#7d8798] hover:text-[#f87171]">remove</button>
                     </form>
                   </td>
                 </tr>

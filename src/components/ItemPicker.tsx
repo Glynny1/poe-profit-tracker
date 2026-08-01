@@ -81,7 +81,7 @@ export function ItemPicker({
   }
 
   return (
-    <div ref={box} className="relative">
+    <div ref={box} className="relative isolate">
       <Label hint={picked ? `${picked.chaos.toLocaleString()} c each right now` : undefined}>
         {label}
       </Label>
@@ -104,7 +104,7 @@ export function ItemPicker({
           <button
             type="button"
             onClick={clear}
-            className="shrink-0 rounded-lg border border-[#2a3346] px-3 text-sm text-[#8b97ad] hover:text-[#e6ebf5]"
+            className="shrink-0 rounded-lg border border-[#262c3a] px-3 text-sm text-[#7d8798] hover:text-[#e4e8f0]"
           >
             Clear
           </button>
@@ -112,29 +112,29 @@ export function ItemPicker({
       </div>
 
       {open && visible.length > 0 && (
-        <ul className="absolute z-20 mt-1 max-h-72 w-full overflow-auto rounded-lg border border-[#2a3346] bg-[#1b2130] shadow-xl">
+        <ul className="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-lg border border-[#262c3a] bg-[#1d222d] shadow-[0_8px_24px_-8px_rgba(0,0,0,0.6)]">
           {visible.map((r) => (
             <li key={r.priceKey}>
               <button
                 type="button"
                 onClick={() => choose(r)}
-                className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-[#232b3d]"
+                className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-[#262c3a]"
               >
                 {r.icon && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={r.icon} alt="" className="size-6 object-contain" />
                 )}
-                <span className="flex-1 truncate text-[#e6ebf5]">{r.displayName}</span>
-                <span className="text-xs text-[#8b97ad]">{r.chaos.toLocaleString()} c</span>
+                <span className="flex-1 truncate text-[#e4e8f0]">{r.displayName}</span>
+                <span className="text-xs text-[#7d8798]">{r.chaos.toLocaleString()} c</span>
               </button>
             </li>
           ))}
         </ul>
       )}
 
-      {loading && <p className="mt-1 text-xs text-[#8b97ad]">Searching...</p>}
+      {loading && <p className="mt-1 text-xs text-[#7d8798]">Searching...</p>}
       {!loading && query.trim().length >= 2 && !picked && visible.length === 0 && open && (
-        <p className="mt-1 text-xs text-[#8b97ad]">
+        <p className="mt-1 text-xs text-[#7d8798]">
           Nothing matched. poe.ninja doesn&apos;t price rare items, so enter the cost manually instead.
         </p>
       )}

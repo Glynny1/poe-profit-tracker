@@ -82,8 +82,8 @@ export default async function ComparePage({
           <Empty>Nothing changed between these two snapshots.</Empty>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-              <tr className="border-b border-[#2a3346]">
+            <thead className="text-left text-xs uppercase tracking-wide text-[#7d8798]">
+              <tr className="border-b border-[#262c3a]">
                 <th className="pb-2 font-medium">Item</th>
                 <th className="pb-2 font-medium">What happened</th>
                 <th className="pb-2 text-right font-medium">Qty</th>
@@ -94,10 +94,10 @@ export default async function ComparePage({
             </thead>
             <tbody>
               {diff.lines.map((l) => (
-                <tr key={l.itemKey} className="border-b border-[#2a3346]/50 last:border-0">
-                  <td className="py-2 text-[#e6ebf5]">{l.displayName}</td>
-                  <td className="py-2 text-xs text-[#8b97ad]">{KIND_LABEL[l.kind] ?? l.kind}</td>
-                  <td className="py-2 text-right text-[#8b97ad]">
+                <tr key={l.itemKey} className="border-b border-[#262c3a]/50 last:border-0">
+                  <td className="py-2 text-[#e4e8f0]">{l.displayName}</td>
+                  <td className="py-2 text-xs text-[#7d8798]">{KIND_LABEL[l.kind] ?? l.kind}</td>
+                  <td className="py-2 text-right text-[#7d8798]">
                     {l.qtyDelta > 0 ? `+${l.qtyDelta}` : l.qtyDelta || "-"}
                   </td>
                   <td
@@ -106,7 +106,7 @@ export default async function ComparePage({
                         ? "text-[#4ade80]"
                         : l.quantityMicro < 0n
                           ? "text-[#f87171]"
-                          : "text-[#8b97ad]"
+                          : "text-[#7d8798]"
                     }`}
                   >
                     {l.quantityMicro === 0n ? "-" : fmt(l.quantityMicro)}

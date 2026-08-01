@@ -17,7 +17,7 @@ export function TabPicker({ tabs }: { tabs: TabRow[] }) {
 
   return (
     <div>
-      <p className="mb-3 text-sm text-[#8b97ad]">
+      <p className="mb-3 text-sm text-[#7d8798]">
         {tracked} of {tabs.length} tabs tracked
       </p>
       <ul className="grid gap-2 sm:grid-cols-2">
@@ -27,7 +27,7 @@ export function TabPicker({ tabs }: { tabs: TabRow[] }) {
               className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
                 t.isTracked
                   ? "border-[#c8aa6e]/50 bg-[#c8aa6e]/5"
-                  : "border-[#2a3346] hover:bg-[#1b2130]"
+                  : "border-[#262c3a] hover:bg-[#1d222d]"
               }`}
             >
               <input
@@ -40,8 +40,8 @@ export function TabPicker({ tabs }: { tabs: TabRow[] }) {
                 }}
                 className="size-4 accent-[#c8aa6e]"
               />
-              <span className="flex-1 truncate text-sm text-[#e6ebf5]">{t.name}</span>
-              <span className="text-xs text-[#8b97ad]">
+              <span className="flex-1 truncate text-sm text-[#e4e8f0]">{t.name}</span>
+              <span className="text-xs text-[#7d8798]">
                 {t.items > 0 ? `${t.items} items` : "no items loaded"}
               </span>
             </label>

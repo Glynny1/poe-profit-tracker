@@ -14,7 +14,7 @@ export default function LoginPage() {
     <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-6 p-6">
       <div className="text-center">
         <h1 className="text-2xl font-semibold text-[#c8aa6e]">PoE Profit Tracker</h1>
-        <p className="mt-2 text-sm text-[#8b97ad]">
+        <p className="mt-2 text-sm text-[#7d8798]">
           Snapshot your stash. See what you actually earned, separated from what the market did.
         </p>
       </div>
@@ -63,7 +63,7 @@ export default function LoginPage() {
         </form>
       </Panel>
 
-      <p className="text-center text-xs text-[#8b97ad]">
+      <p className="text-center text-xs text-[#7d8798]">
         This product isn&apos;t affiliated with or endorsed by Grinding Gear Games in any way.
       </p>
     </main>

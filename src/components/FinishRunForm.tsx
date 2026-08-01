@@ -33,7 +33,7 @@ export function FinishRunForm({
   if (finished) {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-[#8b97ad]">
+        <p className="text-sm text-[#7d8798]">
           This run is closed. The comparison below is fixed against the snapshot taken when you
           finished it.
         </p>
@@ -63,7 +63,7 @@ export function FinishRunForm({
         {importState.ok && <Alert kind="ok">{importState.ok}</Alert>}
 
         {stashUrl && (
-          <p className="text-sm text-[#8b97ad]">
+          <p className="text-sm text-[#7d8798]">
             Open{" "}
             <a
               href={stashUrl}
@@ -85,7 +85,7 @@ export function FinishRunForm({
             rows={5}
             spellCheck={false}
             placeholder='{"numTabs":24,"tabs":[...],"items":[...]}'
-            className="w-full rounded-lg border border-[#2a3346] bg-[#0b0d12] p-3 font-mono text-xs text-[#e6ebf5] outline-none placeholder:text-[#8b97ad]/50 focus:border-[#c8aa6e]"
+            className="w-full rounded-lg border border-[#262c3a] bg-[#0a0c11] p-3 font-mono text-xs text-[#e4e8f0] outline-none placeholder:text-[#7d8798]/50 focus:border-[#c8aa6e]"
           />
         </div>
 
@@ -97,12 +97,12 @@ export function FinishRunForm({
             type="file"
             name="file"
             accept=".json,application/json"
-            className="block text-sm text-[#8b97ad] file:mr-3 file:rounded-lg file:border file:border-[#2a3346] file:bg-[#1b2130] file:px-3 file:py-2 file:text-sm file:text-[#e6ebf5]"
+            className="block text-sm text-[#7d8798] file:mr-3 file:rounded-lg file:border file:border-[#262c3a] file:bg-[#1d222d] file:px-3 file:py-2 file:text-sm file:text-[#e4e8f0]"
           />
         </div>
       </form>
 
-      <form action={finishAction} className="space-y-4 border-t border-[#2a3346] pt-5">
+      <form action={finishAction} className="space-y-4 border-t border-[#262c3a] pt-5">
         <input type="hidden" name="strategyId" value={strategyId} />
         {finishState.error && <Alert kind="error">{finishState.error}</Alert>}
 
@@ -116,7 +116,7 @@ export function FinishRunForm({
                 const inBaseline = baselineTabIds.includes(t.tabId);
                 return (
                   <li key={t.tabId}>
-                    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[#2a3346] px-3 py-2.5 transition-colors hover:bg-[#1b2130]">
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[#262c3a] px-3 py-2.5 transition-colors hover:bg-[#1d222d]">
                       <input
                         type="checkbox"
                         name="tabIds"
@@ -124,8 +124,8 @@ export function FinishRunForm({
                         defaultChecked={inBaseline}
                         className="size-4 accent-[#c8aa6e]"
                       />
-                      <span className="flex-1 truncate text-sm text-[#e6ebf5]">{t.name}</span>
-                      <span className="text-xs text-[#8b97ad]">
+                      <span className="flex-1 truncate text-sm text-[#e4e8f0]">{t.name}</span>
+                      <span className="text-xs text-[#7d8798]">
                         {t.items > 0 ? `${t.items} items` : "empty"}
                       </span>
                       {!inBaseline && (
@@ -141,7 +141,7 @@ export function FinishRunForm({
                 );
               })}
             </ul>
-            <p className="mt-2 text-xs text-[#8b97ad]">
+            <p className="mt-2 text-xs text-[#7d8798]">
               Including a tab the baseline did not cover, or leaving one out that it did, means part
               of the difference is not something the run produced. That part is reported separately
               rather than counted as loot.
@@ -149,7 +149,7 @@ export function FinishRunForm({
           </div>
         )}
 
-        <p className="text-sm text-[#8b97ad]">
+        <p className="text-sm text-[#7d8798]">
           Takes a closing snapshot of the ticked tabs and compares it to the one from when you
           started, so everything that arrived or left is listed with what it is worth.
         </p>

@@ -36,8 +36,8 @@ export function HoldingsTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
-        <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-          <tr className="border-b border-[#2a3346]">
+        <thead className="text-left text-xs uppercase tracking-wide text-[#7d8798]">
+          <tr className="border-b border-[#262c3a]">
             <th className="pb-2 font-medium">Name</th>
             {showTab && <th className="pb-2 font-medium">Tab</th>}
             <th className="pb-2 text-right font-medium">Quantity</th>
@@ -48,7 +48,7 @@ export function HoldingsTable({
         </thead>
         <tbody>
           {rows.map((h) => (
-            <tr key={h.itemKey} className="border-b border-[#2a3346]/50 last:border-0">
+            <tr key={h.itemKey} className="border-b border-[#262c3a]/50 last:border-0">
               <td className="py-2">
                 <span className="flex items-center gap-2.5">
                   {h.icon ? (
@@ -59,18 +59,18 @@ export function HoldingsTable({
                       loading="lazy"
                     />
                   ) : (
-                    <span className="size-6 shrink-0 rounded bg-[#1b2130]" />
+                    <span className="size-6 shrink-0 rounded bg-[#1d222d]" />
                   )}
-                  <span className="text-[#e6ebf5]">{h.displayName}</span>
+                  <span className="text-[#e4e8f0]">{h.displayName}</span>
                 </span>
               </td>
               {showTab && (
-                <td className="py-2 text-[#8b97ad]">
+                <td className="py-2 text-[#7d8798]">
                   {h.tabNames.length > 1 ? `${h.tabNames.length} tabs` : (h.tabNames[0] ?? "-")}
                 </td>
               )}
-              <td className="py-2 text-right text-[#8b97ad]">{h.qty.toLocaleString("en-GB")}</td>
-              <td className="py-2 text-right text-[#8b97ad]">
+              <td className="py-2 text-right text-[#7d8798]">{h.qty.toLocaleString("en-GB")}</td>
+              <td className="py-2 text-right text-[#7d8798]">
                 {h.unitMicro == null ? (
                   "-"
                 ) : (
@@ -97,7 +97,7 @@ export function HoldingsTable({
       </table>
 
       {hidden > 0 && (
-        <p className="pt-3 text-xs text-[#8b97ad]">
+        <p className="pt-3 text-xs text-[#7d8798]">
           and {hidden.toLocaleString("en-GB")} more, smallest first
         </p>
       )}
@@ -124,7 +124,7 @@ function TotalCell({
 
   return (
     <span className="inline-flex items-center gap-3">
-      <span className="text-[#8b97ad]">
+      <span className="text-[#7d8798]">
         <Chaos micro={micro} icons={icons} />
       </span>
       <Coin icon={icons.divine} alt="Divine Orb">

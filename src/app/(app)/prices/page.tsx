@@ -93,10 +93,10 @@ export default async function PricesPage() {
               .map((r) => (
                 <div
                   key={r.type}
-                  className="flex items-center justify-between border-b border-[#2a3346]/50 py-1.5"
+                  className="flex items-center justify-between border-b border-[#262c3a]/50 py-1.5"
                 >
-                  <span className={r.ok ? "text-[#e6ebf5]" : "text-[#f87171]"}>{r.type}</span>
-                  <span className="text-[#8b97ad]">
+                  <span className={r.ok ? "text-[#e4e8f0]" : "text-[#f87171]"}>{r.type}</span>
+                  <span className="text-[#7d8798]">
                     {r.ok ? r.rows.toLocaleString() : `HTTP ${r.status ?? "?"}`}
                   </span>
                 </div>

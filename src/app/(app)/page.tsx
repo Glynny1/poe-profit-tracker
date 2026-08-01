@@ -5,7 +5,7 @@ import { latestDiff } from "@/lib/services/snapshots";
 import { getLatestDivineRate } from "@/lib/services/priceBook";
 import { getHoldings } from "@/lib/services/holdings";
 import { formatMoney } from "@/domain/money";
-import { Alert, Empty, Panel, Stat } from "@/components/ui";
+import { Alert, Empty, Panel, Stat, Td, Th, Tr } from "@/components/ui";
 import { NetWorthChart } from "@/components/NetWorthChart";
 import { ChaosAndDivine } from "@/components/Coin";
 import { HoldingsTable } from "@/components/HoldingsTable";
@@ -26,7 +26,7 @@ export default async function Dashboard() {
   if (snapshots.length === 0) {
     return (
       <Panel title="No snapshots yet">
-        <p className="text-sm text-[#8b97ad]">
+        <p className="text-sm text-[#7d8798]">
           Import your stash to take the first one.{" "}
           <Link href="/setup" className="text-[#c8aa6e] underline">
             Go to Import
@@ -47,58 +47,67 @@ export default async function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Panel>
-          <Stat
-            label="Net worth"
-            value={
-              <ChaosAndDivine micro={latest.totalMicro} divineRateMicro={rate} icons={icons} />
-            }
-            hint={`${latest.itemCount.toLocaleString()} items tracked`}
-          />
-        </Panel>
-        <Panel className="sm:col-span-2">
-          {diff ? (
-            <>
+      {/* One thing is big. Profit is what this app exists to answer, so it gets
+          the display size and everything else steps down around it. */}
+      <Panel variant="hero">
+        <div className="grid gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+          <div>
+            {diff ? (
               <Stat
                 label="Profit since last snapshot"
-                big
+                size="hero"
                 value={fmt(diff.quantityMicro, true)}
                 tone={diff.quantityMicro >= 0n ? "gain" : "loss"}
-                hint="Items you actually gained or lost, valued at frozen prices."
+                hint="What you actually gained or lost, valued at frozen prices."
               />
-              <p className="mt-3 text-sm text-[#7dd3fc]">
-                {fmt(diff.priceMicro, true)} market drift
-                <span className="text-[#8b97ad]"> (prices moved, you didn&apos;t earn it)</span>
-              </p>
-              {diff.coverageMicro !== 0n && (
-                <p className="mt-1 text-sm text-[#fbbf24]">
-                  {fmt(diff.coverageMicro, true)} pricing coverage changed
-                  <span className="text-[#8b97ad]">
-                    {" "}
-                    (what we could price changed, not what you own)
-                  </span>
-                </p>
-              )}
-            </>
-          ) : (
+            ) : (
+              <Stat
+                label="Profit"
+                size="hero"
+                value="Not yet"
+                hint="Take a second snapshot and this becomes the headline."
+              />
+            )}
+
+            {diff && (
+              <dl className="mt-6 space-y-2 border-t border-[#262c3a] pt-4 text-sm">
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <dt className="text-[#7dd3fc]">{fmt(diff.priceMicro, true)}</dt>
+                  <dd className="text-[#7d8798]">
+                    market drift, because prices moved rather than you earning it
+                  </dd>
+                </div>
+                {diff.coverageMicro !== 0n && (
+                  <div className="flex flex-wrap items-baseline gap-x-2">
+                    <dt className="text-[#fbbf24]">{fmt(diff.coverageMicro, true)}</dt>
+                    <dd className="text-[#7d8798]">
+                      pricing coverage, because what we could price changed rather than what you own
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            )}
+          </div>
+
+          <div className="flex flex-col justify-center gap-7 lg:border-l lg:border-[#262c3a] lg:pl-10">
             <Stat
-              label="Profit"
-              big
-              value="-"
-              hint="Take a second snapshot to see a change."
+              label="Net worth"
+              size="md"
+              value={
+                <ChaosAndDivine micro={latest.totalMicro} divineRateMicro={rate} icons={icons} />
+              }
+              hint={`Across ${latest.itemCount.toLocaleString()} items`}
             />
-          )}
-        </Panel>
-        <Panel>
-          <Stat
-            label="Unpriced items"
-            value={latest.unpricedCount.toLocaleString()}
-            tone={latest.unpricedCount > 0 ? "warn" : "neutral"}
-            hint="Rares and unmatched items. Net worth is a lower bound."
-          />
-        </Panel>
-      </div>
+            <Stat
+              label="Unpriced"
+              size="sm"
+              value={latest.unpricedCount.toLocaleString()}
+              tone={latest.unpricedCount > 0 ? "warn" : "neutral"}
+              hint="Rares and unmatched. Net worth is a lower bound."
+            />
+          </div>
+        </div>
+      </Panel>
 
       {diff && !diff.reconciles && (
         <Alert kind="warn">
@@ -147,50 +156,53 @@ export default async function Dashboard() {
         {!diff || diff.lines.length === 0 ? (
           <Empty>Nothing changed between the last two snapshots.</Empty>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-              <tr className="border-b border-[#2a3346]">
-                <th className="pb-2 font-medium">Item</th>
-                <th className="pb-2 text-right font-medium">Qty</th>
-                <th className="pb-2 text-right font-medium">Profit</th>
-                <th className="pb-2 text-right font-medium">Drift</th>
-              </tr>
-            </thead>
-            <tbody>
-              {diff.lines.slice(0, 15).map((l) => (
-                <tr key={l.itemKey} className="border-b border-[#2a3346]/50 last:border-0">
-                  <td className="py-2">
-                    <span className="text-[#e6ebf5]">{l.displayName}</span>
-                    {l.kind === "removed" && (
-                      // Never "sold": a stash diff cannot tell sold from
-                      // vendored from consumed from used in a map.
-                      <span className="ml-2 text-xs text-[#8b97ad]">left your stash</span>
-                    )}
-                    {l.kind === "unpriced" && (
-                      <span className="ml-2 text-xs text-[#8b97ad]">no price</span>
-                    )}
-                  </td>
-                  <td className="py-2 text-right text-[#8b97ad]">
-                    {l.qtyDelta > 0 ? `+${l.qtyDelta}` : l.qtyDelta}
-                  </td>
-                  <td
-                    className={`py-2 text-right ${
-                      l.quantityMicro > 0n
-                        ? "text-[#4ade80]"
-                        : l.quantityMicro < 0n
-                          ? "text-[#f87171]"
-                          : "text-[#8b97ad]"
-                    }`}
-                  >
-                    {l.quantityMicro === 0n ? "-" : fmt(l.quantityMicro, true)}
-                  </td>
-                  <td className="py-2 text-right text-[#7dd3fc]">
-                    {l.priceMicro === 0n ? "-" : fmt(l.priceMicro, true)}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <Th>Item</Th>
+                  <Th align="right">Qty</Th>
+                  <Th align="right">Profit</Th>
+                  <Th align="right">Drift</Th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {diff.lines.slice(0, 12).map((l) => (
+                  <Tr key={l.itemKey}>
+                    <Td>
+                      <span className="text-[#e4e8f0]">{l.displayName}</span>
+                      {l.kind === "removed" && (
+                        // Never "sold": a stash diff cannot tell sold from
+                        // vendored from consumed from used in a map.
+                        <span className="ml-2 t-caption text-[#7d8798]">left your stash</span>
+                      )}
+                      {l.kind === "unpriced" && (
+                        <span className="ml-2 t-caption text-[#7d8798]">no price</span>
+                      )}
+                    </Td>
+                    <Td align="right" className="text-[#7d8798]">
+                      {l.qtyDelta > 0 ? `+${l.qtyDelta}` : l.qtyDelta}
+                    </Td>
+                    <Td
+                      align="right"
+                      className={
+                        l.quantityMicro > 0n
+                          ? "text-[#4ade80]"
+                          : l.quantityMicro < 0n
+                            ? "text-[#f87171]"
+                            : "text-[#7d8798]"
+                      }
+                    >
+                      {l.quantityMicro === 0n ? "-" : fmt(l.quantityMicro, true)}
+                    </Td>
+                    <Td align="right" className="text-[#7dd3fc]">
+                      {l.priceMicro === 0n ? "-" : fmt(l.priceMicro, true)}
+                    </Td>
+                  </Tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 

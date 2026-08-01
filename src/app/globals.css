@@ -1,25 +1,37 @@
 @import "tailwindcss";
 
-/* Dark by default: this sits next to a game that is almost entirely dark, and
-   gets alt-tabbed to mid-map. A white flash is genuinely unpleasant there. */
+/* Dark by default. This sits next to a game that is almost entirely dark and
+   gets alt-tabbed to mid-map, where a white flash is genuinely unpleasant.
+
+   Neutrals share one hue (a cool blue-grey, 232deg) so nothing reads as a
+   random grey, and neither end of the ramp is pure black or pure white. */
 @theme {
-  --color-ink: #0b0d12;
-  --color-panel: #141821;
-  --color-panel2: #1b2130;
-  --color-line: #2a3346;
-  --color-muted: #8b97ad;
-  --color-ptext: #e6ebf5;
+  --color-n900: #0a0c11; /* page */
+  --color-n800: #10131a; /* raised surface */
+  --color-n700: #161a23; /* panel */
+  --color-n600: #1d222d; /* input, hover */
+  --color-n500: #262c3a; /* hairline */
+  --color-n400: #39415280; /* hairline, subtle */
+  --color-n300: #7d8798; /* muted text */
+  --color-n200: #aab3c2; /* secondary text */
+  --color-n100: #e4e8f0; /* primary text */
+
   --color-gold: #c8aa6e;
+  --color-gold-dim: #8d7649;
   --color-gain: #4ade80;
   --color-loss: #f87171;
   --color-drift: #7dd3fc;
   --color-warn: #fbbf24;
+
+  /* One elevation language: hairline borders for structure, and a single soft
+     low-alpha shadow for the few things that genuinely float. */
+  --shadow-float: 0 8px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
 }
 
-html,
-body {
-  background: #0b0d12;
-  color: #e6ebf5;
+html {
+  background: var(--color-n900);
+  color: var(--color-n100);
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
@@ -28,7 +40,60 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Type scale: five sizes, and hierarchy comes from weight and colour before it
+   comes from size. Line height tightens as size grows. */
+.t-display {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.t-title {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+.t-body {
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+.t-label {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.t-caption {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Prose gets a measure so long help text doesn't run the width of a monitor. */
+.measure {
+  max-width: 68ch;
+}
+
 ::selection {
-  background: #c8aa6e;
-  color: #0b0d12;
+  background: var(--color-gold);
+  color: var(--color-n900);
+}
+
+/* One visible focus treatment for everything, rather than each component
+   inventing its own or relying on the browser default. */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }

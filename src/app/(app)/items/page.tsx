@@ -85,16 +85,16 @@ export default async function ItemsPage() {
               title="Unpriced"
               subtitle="poe.ninja doesn't price rare items by design, so these count as zero. Your net worth is a lower bound."
             >
-              <ul className="grid gap-1 text-sm text-[#8b97ad] sm:grid-cols-2">
+              <ul className="grid gap-1 text-sm text-[#7d8798] sm:grid-cols-2">
                 {unpriced.slice(0, 40).map((l) => (
                   <li key={l.itemKey}>
                     {l.displayName}
-                    {l.qty > 1 && <span className="text-[#8b97ad]/60"> x{l.qty}</span>}
+                    {l.qty > 1 && <span className="text-[#7d8798]/60"> x{l.qty}</span>}
                   </li>
                 ))}
               </ul>
               {unpriced.length > 40 && (
-                <p className="mt-3 text-xs text-[#8b97ad]">
+                <p className="mt-3 text-xs text-[#7d8798]">
                   and {unpriced.length - 40} more...
                 </p>
               )}
@@ -114,8 +114,8 @@ export default async function ItemsPage() {
           </Empty>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-              <tr className="border-b border-[#2a3346]">
+            <thead className="text-left text-xs uppercase tracking-wide text-[#7d8798]">
+              <tr className="border-b border-[#262c3a]">
                 <th className="pb-2 font-medium">Sold</th>
                 <th className="pb-2 font-medium">Item</th>
                 <th className="pb-2 text-right font-medium">Qty</th>
@@ -126,22 +126,22 @@ export default async function ItemsPage() {
             </thead>
             <tbody>
               {sales.map((s) => (
-                <tr key={s.id} className="border-b border-[#2a3346]/50 last:border-0">
-                  <td className="py-2 text-[#8b97ad]">{s.soldAt.toLocaleDateString("en-GB")}</td>
-                  <td className="py-2 text-[#e6ebf5]">
+                <tr key={s.id} className="border-b border-[#262c3a]/50 last:border-0">
+                  <td className="py-2 text-[#7d8798]">{s.soldAt.toLocaleDateString("en-GB")}</td>
+                  <td className="py-2 text-[#e4e8f0]">
                     {s.displayName}
                     {s.isManualOverride && (
                       <span className="ml-2 text-xs text-[#c8aa6e]">manual price</span>
                     )}
                   </td>
-                  <td className="py-2 text-right text-[#8b97ad]">{s.qty}</td>
-                  <td className="py-2 text-right text-[#8b97ad]">{fmt(s.unitPriceMicro)}</td>
+                  <td className="py-2 text-right text-[#7d8798]">{s.qty}</td>
+                  <td className="py-2 text-right text-[#7d8798]">{fmt(s.unitPriceMicro)}</td>
                   <td className="py-2 text-right text-[#4ade80]">
                     {fmt(BigInt(s.qty) * s.unitPriceMicro)}
                   </td>
                   <td className="py-2 text-right">
                     <form action={deleteSale.bind(null, s.id)}>
-                      <button className="text-xs text-[#8b97ad] hover:text-[#f87171]">remove</button>
+                      <button className="text-xs text-[#7d8798] hover:text-[#f87171]">remove</button>
                     </form>
                   </td>
                 </tr>

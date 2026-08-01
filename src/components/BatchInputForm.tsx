@@ -158,7 +158,7 @@ export function BatchInputForm({ strategyId }: { strategyId: string }) {
       {message && <Alert kind={message.kind}>{message.text}</Alert>}
 
       {rows.length === 0 ? (
-        <p className="text-sm text-[#8b97ad]">
+        <p className="text-sm text-[#7d8798]">
           Add everything you bought for this strategy, then pull prices for the whole lot at once.
           Nothing is saved until you press the last button.
         </p>
@@ -166,8 +166,8 @@ export function BatchInputForm({ strategyId }: { strategyId: string }) {
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-                <tr className="border-b border-[#2a3346]">
+              <thead className="text-left text-xs uppercase tracking-wide text-[#7d8798]">
+                <tr className="border-b border-[#262c3a]">
                   <th className="pb-2 font-medium">Item</th>
                   <th className="pb-2 text-right font-medium">Quantity</th>
                   <th className="pb-2 text-right font-medium">Price each (chaos)</th>
@@ -177,13 +177,13 @@ export function BatchInputForm({ strategyId }: { strategyId: string }) {
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.id} className="border-b border-[#2a3346]/50 last:border-0">
+                  <tr key={r.id} className="border-b border-[#262c3a]/50 last:border-0">
                     <td className="py-2">
                       <span className="flex items-center gap-2.5">
                         {r.icon && (
                           <img src={r.icon} alt="" className="size-6 shrink-0 object-contain" />
                         )}
-                        <span className="text-[#e6ebf5]">{r.displayName}</span>
+                        <span className="text-[#e4e8f0]">{r.displayName}</span>
                         {r.overridden && (
                           <span className="text-xs text-[#c8aa6e]">your price</span>
                         )}
@@ -198,7 +198,7 @@ export function BatchInputForm({ strategyId }: { strategyId: string }) {
                         min={1}
                         value={r.qty}
                         onChange={(e) => update(r.id, { qty: Math.max(1, Number(e.target.value)) })}
-                        className="w-24 rounded-lg border border-[#2a3346] bg-[#0b0d12] px-2 py-1.5 text-right text-sm text-[#e6ebf5] outline-none focus:border-[#c8aa6e]"
+                        className="w-24 rounded-lg border border-[#262c3a] bg-[#0a0c11] px-2 py-1.5 text-right text-sm text-[#e4e8f0] outline-none focus:border-[#c8aa6e]"
                       />
                     </td>
                     <td className="py-2 text-right">
@@ -213,10 +213,10 @@ export function BatchInputForm({ strategyId }: { strategyId: string }) {
                             overridden: true,
                           })
                         }
-                        className="w-28 rounded-lg border border-[#2a3346] bg-[#0b0d12] px-2 py-1.5 text-right text-sm text-[#e6ebf5] outline-none focus:border-[#c8aa6e]"
+                        className="w-28 rounded-lg border border-[#262c3a] bg-[#0a0c11] px-2 py-1.5 text-right text-sm text-[#e4e8f0] outline-none focus:border-[#c8aa6e]"
                       />
                     </td>
-                    <td className="py-2 text-right text-[#8b97ad]">
+                    <td className="py-2 text-right text-[#7d8798]">
                       {r.unitCostMicro === ""
                         ? "-"
                         : `${((Number(r.unitCostMicro) / MICRO) * r.qty).toLocaleString("en-GB", {
@@ -227,7 +227,7 @@ export function BatchInputForm({ strategyId }: { strategyId: string }) {
                       <button
                         type="button"
                         onClick={() => setRows((rs) => rs.filter((x) => x.id !== r.id))}
-                        className="text-xs text-[#8b97ad] hover:text-[#f87171]"
+                        className="text-xs text-[#7d8798] hover:text-[#f87171]"
                       >
                         remove
                       </button>
@@ -252,12 +252,12 @@ export function BatchInputForm({ strategyId }: { strategyId: string }) {
                 ? "Saving..."
                 : `Freeze ${rows.length} item${rows.length === 1 ? "" : "s"} at these prices`}
             </Button>
-            <span className="text-sm text-[#8b97ad]">
+            <span className="text-sm text-[#7d8798]">
               {(total / MICRO).toLocaleString("en-GB", { maximumFractionDigits: 1 })} c total
             </span>
           </div>
 
-          <p className="text-xs text-[#8b97ad]">
+          <p className="text-xs text-[#7d8798]">
             Pulling prices overwrites every row except ones where you typed your own price. Whatever
             is shown above is exactly what gets frozen, and it will not change when the market does.
           </p>

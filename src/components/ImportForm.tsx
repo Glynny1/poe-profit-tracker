@@ -23,7 +23,7 @@ export function ImportForm() {
             rows={7}
             spellCheck={false}
             placeholder='{"numTabs":24,"tabs":[...],"items":[...]}'
-            className="w-full rounded-lg border border-[#2a3346] bg-[#0b0d12] p-3 font-mono text-xs text-[#e6ebf5] outline-none placeholder:text-[#8b97ad]/50 focus:border-[#c8aa6e]"
+            className="w-full rounded-lg border border-[#262c3a] bg-[#0a0c11] p-3 font-mono text-xs text-[#e4e8f0] outline-none placeholder:text-[#7d8798]/50 focus:border-[#c8aa6e]"
           />
         </div>
 
@@ -33,9 +33,9 @@ export function ImportForm() {
             type="file"
             name="file"
             accept=".json,application/json"
-            className="block w-full text-sm text-[#8b97ad] file:mr-3 file:rounded-lg file:border file:border-[#2a3346] file:bg-[#1b2130] file:px-3 file:py-2 file:text-sm file:text-[#e6ebf5]"
+            className="block w-full text-sm text-[#7d8798] file:mr-3 file:rounded-lg file:border file:border-[#262c3a] file:bg-[#1d222d] file:px-3 file:py-2 file:text-sm file:text-[#e4e8f0]"
           />
-          <p className="mt-1.5 text-xs text-[#8b97ad]">
+          <p className="mt-1.5 text-xs text-[#7d8798]">
             Hosted on Vercel, a single request is capped at 4.5 MB. A large stash exceeds that in
             one go, so import a few tabs at a time and they accumulate.
           </p>
@@ -46,11 +46,11 @@ export function ImportForm() {
         </Button>
       </form>
 
-      <div className="border-t border-[#2a3346] pt-5">
+      <div className="border-t border-[#262c3a] pt-5">
         <form action={snapAction} className="space-y-3">
           {snapState.error && <Alert kind="error">{snapState.error}</Alert>}
-          <p className="text-sm text-[#8b97ad]">
-            <strong className="text-[#e6ebf5]">Before you snapshot:</strong> empty your character
+          <p className="text-sm text-[#7d8798]">
+            <strong className="text-[#e4e8f0]">Before you snapshot:</strong> empty your character
             inventory into the stash first. Inventory isn&apos;t visible to the API, so 3 divines
             sitting in your pack become +3 div of phantom profit the moment you deposit them.
           </p>

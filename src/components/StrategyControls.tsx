@@ -28,12 +28,12 @@ export function StrategyControls({
           disabled={pending}
           onChange={(e) => setMaps(Number(e.target.value))}
           onBlur={() => maps !== mapsRun && start(() => setMapsRun(strategyId, maps))}
-          className="w-20 rounded-lg border border-[#2a3346] bg-[#0b0d12] px-2 py-1.5 text-sm text-[#e6ebf5] outline-none focus:border-[#c8aa6e]"
+          className="w-20 rounded-lg border border-[#262c3a] bg-[#0a0c11] px-2 py-1.5 text-sm text-[#e4e8f0] outline-none focus:border-[#c8aa6e]"
         />
-        <span className="text-sm text-[#8b97ad]">maps</span>
+        <span className="text-sm text-[#7d8798]">maps</span>
       </div>
 
-      <label className="flex cursor-pointer items-center gap-2 text-sm text-[#8b97ad]">
+      <label className="flex cursor-pointer items-center gap-2 text-sm text-[#7d8798]">
         <input
           type="checkbox"
           checked={shared}
