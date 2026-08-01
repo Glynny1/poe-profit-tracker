@@ -17,12 +17,31 @@ export interface ActionState {
 
 // --- auth -----------------------------------------------------------------
 
+/**
+ * INVITE_CODE accepts a comma-separated list, so different people can be given
+ * different codes — your friends one, GGG another while they review the OAuth
+ * application. Removing a code later revokes only that route in, without
+ * disturbing anyone else's.
+ */
+function validInviteCodes(): string[] {
+  return (process.env.INVITE_CODE ?? "")
+    .split(",")
+    .map((code) => code.trim())
+    .filter(Boolean);
+}
+
 export async function register(_prev: ActionState, form: FormData): Promise<ActionState> {
   const username = String(form.get("username") ?? "").trim();
   const password = String(form.get("password") ?? "");
-  const invite = String(form.get("invite") ?? "");
+  const invite = String(form.get("invite") ?? "").trim();
 
-  if (invite !== process.env.INVITE_CODE) return { error: "That invite code is not valid." };
+  const codes = validInviteCodes();
+  if (codes.length === 0) {
+    // Otherwise a missing INVITE_CODE reads as "your code is wrong" and sends
+    // the user hunting for a typo that isn't there.
+    return { error: "No invite codes are configured on this instance, so nobody can register yet." };
+  }
+  if (!codes.includes(invite)) return { error: "That invite code is not valid." };
   if (username.length < 3) return { error: "Username must be at least 3 characters." };
   if (password.length < 8) return { error: "Password must be at least 8 characters." };
 

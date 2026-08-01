@@ -62,8 +62,27 @@ site** — don't reuse the one in your local `.env`.
 |---|---|
 | `DATABASE_URL` | the Neon pooled string from Part 1 |
 | `SESSION_SECRET` | the output of `npm run secret` |
-| `INVITE_CODE` | anything you like — this is the password your friends need to make an account. Make it long and not guessable. |
+| `INVITE_CODE` | the password your friends need to make an account. Make it long and not guessable. You can set **several, separated by commas** — see below. |
 | `CONTACT_EMAIL` | your email address |
+
+### Giving someone their own invite code
+
+`INVITE_CODE` accepts a comma-separated list, so different people can have
+different codes:
+
+```
+INVITE_CODE=friends-3f9a2b7c,ggg-review-cdbd8a7eb846
+```
+
+Both work. The point is that you can delete one later without disturbing the
+other — useful for handing GGG a code while they review your OAuth application,
+then revoking just that one afterwards. Generate one with:
+
+```bash
+npm run invite
+```
+
+Remember to **redeploy** after changing it, same as any other variable.
 
 ### Then redeploy — this step is easy to miss
 

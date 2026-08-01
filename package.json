@@ -20,7 +20,8 @@
     "seed": "tsx scripts/seed-dev.mts",
     "dev:next-only": "next dev",
     "db:push:prod": "tsx scripts/db-push-prod.mts",
-    "secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+    "secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+    "invite": "node -e \"console.log('ggg-review-'+require('crypto').randomBytes(6).toString('hex'))\""
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
