@@ -1,0 +1,321 @@
+// PoE 1 Profit Tracker — data model
+//
+// Money rule: every monetary column is integer micro-chaos (chaos * 1_000_000)
+// stored as BigInt. There are no floats in the money path. Divine is a display
+// unit only, converted once at render using the rate stored on the price book
+// that the figure came from.
+//
+// Freezing rule: `unitCostMicro` (StrategyInput) and `unitPriceMicro` (Sale) are
+// COPIED values, never joins. A join to a price table is a live price, which is
+// exactly the bug this app exists to avoid.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// The connection URL lives in prisma.config.ts (Prisma 7 moved it out of here),
+// and the runtime client gets it via the pg driver adapter in src/lib/prisma.ts.
+datasource db {
+  provider = "postgresql"
+}
+
+enum SnapshotSource {
+  IMPORT
+  SESSION
+  OAUTH
+}
+
+enum DisplayCurrency {
+  CHAOS
+  DIVINE
+}
+
+model AppUser {
+  id           String          @id @default(cuid())
+  username     String          @unique
+  passwordHash String
+  // Self-reported. We cannot verify a PoE account name without OAuth, so the UI
+  // must never show a "verified" tick for this.
+  poeAccount   String?
+  league       String          @default("Allflame")
+  displayCurrency DisplayCurrency @default(CHAOS)
+
+  // A poe.ninja row backed by a single listing is noise, not a price. Rows with
+  // `count` below this threshold are treated as unpriced.
+  minCount     Int             @default(5)
+  // Values UNREALISED holdings at this percentage of list price. The gap between
+  // poe.ninja list price and what you actually get selling in bulk is the largest
+  // systematic error in this genre.
+  liquidityHaircutPct Int      @default(100)
+
+  // Encrypted at rest with SESSION_SECRET-derived key, never logged, one-click
+  // wipe. Only populated once the session-cookie adapter ships.
+  poeSessIdEnc String?
+
+  createdAt    DateTime        @default(now())
+
+  trackedTabs  TrackedTab[]
+  snapshots    Snapshot[]
+  diffs        SnapshotDiff[]
+  strategies   Strategy[]
+  sales        Sale[]
+
+  @@map("app_user")
+}
+
+model TrackedTab {
+  id        String  @id @default(cuid())
+  userId    String
+  league    String
+  gggTabId  String
+  name      String
+  type      String
+  colour    String?
+  index     Int     @default(0)
+  isTracked Boolean @default(false)
+
+  user      AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, league, gggTabId])
+  @@index([userId, league])
+  @@map("tracked_tab")
+}
+
+// An immutable set of prices captured at one instant. Never updated after write.
+model PriceBook {
+  id           String   @id @default(cuid())
+  league       String
+  fetchedAt    DateTime @default(now())
+  // From poe.ninja exchange `core.rates.divine`, expressed as micro-chaos per
+  // 1 divine. poe.ninja publishes TWO chaos<->divine rates that disagree by ~19%;
+  // this is the exchange one, which is what item `divineValue` is derived from.
+  divineRateMicro BigInt
+  source       String   @default("poe.ninja")
+  // Which category endpoints succeeded, which 404'd, timings.
+  meta         Json?
+
+  prices       Price[]
+  snapshots    Snapshot[]
+  strategyInputs StrategyInput[]
+  sales        Sale[]
+
+  @@index([league, fetchedAt])
+  @@map("price_book")
+}
+
+model Price {
+  priceBookId  String
+  priceKey     String
+  displayName  String
+  icon         String?
+  chaosMicro   BigInt
+  // poe.ninja has no lowConfidence flag on the item overview; these two are the
+  // only confidence signal available.
+  count        Int      @default(0)
+  listingCount Int      @default(0)
+
+  priceBook    PriceBook @relation(fields: [priceBookId], references: [id], onDelete: Cascade)
+
+  @@id([priceBookId, priceKey])
+  @@map("price")
+}
+
+model Snapshot {
+  id           String   @id @default(cuid())
+  userId       String
+  league       String
+  // SERVER-stamped. Never trust a client clock for ordering — one skewed clock
+  // corrupts every strategy whose window it lands inside.
+  capturedAt   DateTime @default(now())
+  // Hash of the sorted tracked-tab id set, so we always know what this covered.
+  scopeHash    String
+  // The tab ids actually captured, used to compute the intersection when the
+  // tracked set changes between two snapshots.
+  tabIds       String[]
+  priceBookId  String
+
+  totalMicro   BigInt   @default(0)
+  itemCount    Int      @default(0)
+  unpricedCount Int     @default(0)
+
+  // Protects strategy baselines from any future retention job.
+  pinned       Boolean  @default(false)
+  source       SnapshotSource @default(IMPORT)
+
+  user         AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  priceBook    PriceBook @relation(fields: [priceBookId], references: [id])
+  lines        SnapshotLine[]
+  diffsFrom    SnapshotDiff[] @relation("DiffFrom")
+  diffsTo      SnapshotDiff[] @relation("DiffTo")
+  strategyBaselines Strategy[] @relation("StrategyBaseline")
+  strategyEnds Strategy[]      @relation("StrategyEnd")
+
+  @@index([userId, league, capturedAt])
+  @@map("snapshot")
+}
+
+model SnapshotLine {
+  snapshotId  String
+  // Fungibles: itemKey == priceKey, quantities summed across ALL tracked tabs.
+  // Non-fungibles: 'u:<gggId>' or 'h:<contentHash>', qty = count of identical items.
+  itemKey     String
+  priceKey    String?
+  displayName String
+  qty         Int
+  unitMicro   BigInt?
+  isFungible  Boolean
+  // Which tracked tabs contributed to this line, for the UI only. Never part of
+  // identity — including it would make tab moves look like sales.
+  tabIds      String[]
+
+  snapshot    Snapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@id([snapshotId, itemKey])
+  @@map("snapshot_line")
+}
+
+model SnapshotDiff {
+  id             String   @id @default(cuid())
+  userId         String
+  fromSnapshotId String
+  toSnapshotId   String
+  createdAt      DateTime @default(now())
+
+  // The headline. Items you actually gained, valued at frozen prices.
+  quantityMicro  BigInt
+  // Market drift on what you already held. NOT profit.
+  priceMicro     BigInt
+  // Coverage changes: a category returned/vanished, or the tracked tab set
+  // changed. NOT income either way.
+  coverageMicro  BigInt
+  // quantity + price + coverage must equal the net worth delta exactly. If this
+  // is false the UI refuses to render a profit figure for the interval.
+  reconciles     Boolean
+
+  user           AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fromSnapshot   Snapshot @relation("DiffFrom", fields: [fromSnapshotId], references: [id], onDelete: Cascade)
+  toSnapshot     Snapshot @relation("DiffTo", fields: [toSnapshotId], references: [id], onDelete: Cascade)
+  lines          DiffLine[]
+
+  @@unique([fromSnapshotId, toSnapshotId])
+  @@index([userId, createdAt])
+  @@map("snapshot_diff")
+}
+
+model DiffLine {
+  diffId        String
+  itemKey       String
+  displayName   String
+  qtyDelta      Int
+  quantityMicro BigInt
+  priceMicro    BigInt
+  coverageMicro BigInt
+  // added | removed | increased | decreased | repriced | unchanged
+  // | became_priceable | became_unpriceable | out_of_scope | unpriced
+  kind          String
+
+  diff          SnapshotDiff @relation(fields: [diffId], references: [id], onDelete: Cascade)
+
+  @@id([diffId, itemKey])
+  @@map("diff_line")
+}
+
+model Strategy {
+  id                 String    @id @default(cuid())
+  userId             String
+  league             String
+  name               String
+  startedAt          DateTime  @default(now())
+  endedAt            DateTime?
+  baselineSnapshotId String?
+  endSnapshotId      String?
+  mapsRun            Int       @default(0)
+  notes              String?
+  shared             Boolean   @default(false)
+
+  user               AppUser   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  baselineSnapshot   Snapshot? @relation("StrategyBaseline", fields: [baselineSnapshotId], references: [id])
+  endSnapshot        Snapshot? @relation("StrategyEnd", fields: [endSnapshotId], references: [id])
+  inputs             StrategyInput[]
+  sales              Sale[]
+
+  @@index([userId, league, startedAt])
+  @@map("strategy")
+}
+
+model StrategyInput {
+  id            String   @id @default(cuid())
+  strategyId    String
+  priceKey      String
+  displayName   String
+  icon          String?
+  qty           Int
+  // FROZEN AT ADD. Never recomputed. This is requirement S3.
+  unitCostMicro BigInt
+  priceBookId   String?
+  isManualOverride Boolean @default(false)
+  addedAt       DateTime @default(now())
+
+  strategy      Strategy  @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  priceBook     PriceBook? @relation(fields: [priceBookId], references: [id])
+
+  @@index([strategyId])
+  @@map("strategy_input")
+}
+
+model Sale {
+  id             String   @id @default(cuid())
+  userId         String
+  // Nullable on purpose: most trades are not part of a Strategy, and the Sale
+  // event is the only mechanism that gives the app a realised price the stash
+  // API can never supply.
+  strategyId     String?
+  priceKey       String
+  displayName    String
+  icon           String?
+  qty            Int
+  // FROZEN AT SALE.
+  unitPriceMicro BigInt
+  priceBookId    String?
+  isManualOverride Boolean @default(false)
+  soldAt         DateTime @default(now())
+  note           String?
+
+  user           AppUser   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategy       Strategy? @relation(fields: [strategyId], references: [id], onDelete: SetNull)
+  priceBook      PriceBook? @relation(fields: [priceBookId], references: [id])
+
+  @@index([userId, soldAt])
+  @@index([strategyId])
+  @@map("sale")
+}
+
+// Imported stash JSON waiting for the user to choose which tabs count. Held in
+// the database rather than in memory because on serverless every request is a
+// fresh process, so an in-memory stage would be empty by the time the user
+// pressed Snapshot.
+model StagedImport {
+  userId    String   @id
+  league    String
+  /// ParsedTab[] — the raw imported tabs and their items.
+  tabs      Json
+  updatedAt DateTime @updatedAt
+
+  @@map("staged_import")
+}
+
+// Token bucket for outbound GGG requests. Lives in the DB because the legacy
+// stash endpoint rate-limits per IP, and on serverless every invocation is a
+// fresh process — in-memory state would let concurrent requests overrun the
+// limit and earn a 1-hour ban on the server's IP.
+model FetchBudget {
+  id           String   @id
+  tokens       Int
+  maxTokens    Int
+  refillPerSec Float
+  updatedAt    DateTime @updatedAt
+  // Set when GGG returns 429 + Retry-After; no request may go out before this.
+  blockedUntil DateTime?
+
+  @@map("fetch_budget")
+}

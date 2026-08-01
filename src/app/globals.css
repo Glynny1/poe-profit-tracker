@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* Dark by default: this sits next to a game that is almost entirely dark, and
+   gets alt-tabbed to mid-map. A white flash is genuinely unpleasant there. */
+@theme {
+  --color-ink: #0b0d12;
+  --color-panel: #141821;
+  --color-panel2: #1b2130;
+  --color-line: #2a3346;
+  --color-muted: #8b97ad;
+  --color-ptext: #e6ebf5;
+  --color-gold: #c8aa6e;
+  --color-gain: #4ade80;
+  --color-loss: #f87171;
+  --color-drift: #7dd3fc;
+  --color-warn: #fbbf24;
+}
+
+html,
+body {
+  background: #0b0d12;
+  color: #e6ebf5;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Numbers line up in columns, which matters on every screen in this app. */
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: #c8aa6e;
+  color: #0b0d12;
+}
