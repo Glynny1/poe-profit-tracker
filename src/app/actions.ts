@@ -254,52 +254,123 @@ export async function createStrategy(_prev: ActionState, form: FormData): Promis
   redirect(`/strategies/${strategy.id}`);
 }
 
+export interface PulledPrice {
+  priceKey: string;
+  displayName: string;
+  icon: string | null;
+  /** micro-chaos as a string: BigInt cannot cross the server/client boundary. */
+  unitCostMicro: string;
+  priceBookId: string;
+  found: boolean;
+}
+
 /**
- * Add an input to a strategy, freezing its price at this instant (S3).
- * The frozen figure is COPIED onto the row. There is deliberately no join back
- * to a live price, because that is precisely the bug this feature exists to avoid.
+ * Look up the current price of several items at once.
+ *
+ * Doing the whole basket in one go is the point: every row is then frozen at the
+ * same instant against the same price book, so a cost sheet built over ten
+ * minutes of typing doesn't end up with rows priced ten minutes apart.
  */
-export async function addStrategyInput(_prev: ActionState, form: FormData): Promise<ActionState> {
+export async function pullLivePrices(
+  strategyId: string,
+  priceKeys: string[],
+): Promise<{ prices: PulledPrice[]; error?: string }> {
   const user = await requireUser();
-  const strategyId = String(form.get("strategyId") ?? "");
-  const priceKey = String(form.get("priceKey") ?? "");
-  const qty = Number(form.get("qty"));
-  const overrideChaos = String(form.get("overrideChaos") ?? "").trim();
-
-  if (!priceKey) return { error: "Pick an item." };
-  if (!Number.isFinite(qty) || qty <= 0) return { error: "Quantity must be a positive number." };
-
   const strategy = await prisma.strategy.findFirst({
     where: { id: strategyId, userId: user.id },
+    select: { league: true },
   });
-  if (!strategy) return { error: "Strategy not found." };
+  if (!strategy) return { prices: [], error: "Strategy not found." };
+
+  const keys = [...new Set(priceKeys.filter(Boolean))].slice(0, 200);
+  if (keys.length === 0) return { prices: [] };
 
   const priceBookId = await getFreshPriceBookId(strategy.league);
-  const price = await prisma.price.findUnique({
-    where: { priceBookId_priceKey: { priceBookId, priceKey } },
+  const rows = await prisma.price.findMany({
+    where: { priceBookId, priceKey: { in: keys } },
+    select: { priceKey: true, displayName: true, icon: true, chaosMicro: true },
   });
+  const byKey = new Map(rows.map((r) => [r.priceKey, r]));
 
-  const manual = overrideChaos !== "";
-  const unitCostMicro = manual ? chaosToMicro(Number(overrideChaos)) : (price?.chaosMicro ?? 0n);
-  if (!manual && !price) {
-    return { error: "That item has no current price. Enter what you actually paid instead." };
+  return {
+    prices: keys.map((priceKey) => {
+      const row = byKey.get(priceKey);
+      return {
+        priceKey,
+        displayName: row?.displayName ?? priceKey,
+        icon: row?.icon ?? null,
+        unitCostMicro: (row?.chaosMicro ?? 0n).toString(),
+        priceBookId,
+        found: !!row,
+      };
+    }),
+  };
+}
+
+export interface BatchInput {
+  priceKey: string;
+  displayName: string;
+  icon?: string | null;
+  qty: number;
+  /** micro-chaos as a string, exactly as shown to the user before they committed. */
+  unitCostMicro: string;
+  priceBookId?: string;
+  isManualOverride: boolean;
+}
+
+/**
+ * Commit a whole basket of inputs at once (S2 + S3).
+ *
+ * The figure stored is the one the client was displaying, not a fresh lookup.
+ * Re-reading the price here would mean the number you saw before pressing the
+ * button is not the number that got frozen, which is exactly the class of
+ * surprise this feature exists to prevent. An arbitrary value is acceptable
+ * because a manual override is a supported feature; it is only bounded so a
+ * malformed one cannot be stored.
+ */
+export async function addStrategyInputs(
+  strategyId: string,
+  inputs: BatchInput[],
+): Promise<ActionState> {
+  const user = await requireUser();
+  const strategy = await prisma.strategy.findFirst({
+    where: { id: strategyId, userId: user.id },
+    select: { id: true },
+  });
+  if (!strategy) return { error: "Strategy not found." };
+  if (inputs.length === 0) return { error: "Nothing to add." };
+
+  const rows = [];
+  for (const i of inputs) {
+    if (!i.priceKey) return { error: "One of the rows has no item selected." };
+    const qty = Math.round(Number(i.qty));
+    if (!Number.isFinite(qty) || qty <= 0) {
+      return { error: `Quantity for "${i.displayName}" must be a positive number.` };
+    }
+    let micro: bigint;
+    try {
+      micro = BigInt(i.unitCostMicro);
+    } catch {
+      return { error: `Could not read the price for "${i.displayName}".` };
+    }
+    if (micro < 0n) return { error: `Price for "${i.displayName}" cannot be negative.` };
+
+    rows.push({
+      strategyId,
+      priceKey: i.priceKey,
+      displayName: i.displayName,
+      icon: i.icon ?? null,
+      qty,
+      unitCostMicro: micro,
+      priceBookId: i.priceBookId ?? null,
+      isManualOverride: i.isManualOverride,
+    });
   }
 
-  await prisma.strategyInput.create({
-    data: {
-      strategyId,
-      priceKey,
-      displayName: price?.displayName ?? priceKey,
-      icon: price?.icon,
-      qty: Math.round(qty),
-      unitCostMicro,
-      priceBookId,
-      isManualOverride: manual,
-    },
-  });
+  await prisma.strategyInput.createMany({ data: rows });
 
   revalidatePath(`/strategies/${strategyId}`);
-  return { ok: "Cost recorded at today's price." };
+  return { ok: `Added ${rows.length} item${rows.length === 1 ? "" : "s"} at frozen prices.` };
 }
 
 export async function deleteStrategyInput(id: string) {

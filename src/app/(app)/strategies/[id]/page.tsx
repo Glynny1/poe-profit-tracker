@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getFreshPriceBookId, getLatestDivineRate } from "@/lib/services/priceBook";
 import { formatMoney, microToChaos } from "@/domain/money";
 import { Alert, Empty, Panel, Stat } from "@/components/ui";
-import { AddInputForm } from "@/components/AddInputForm";
+import { BatchInputForm } from "@/components/BatchInputForm";
 import { StrategyControls } from "@/components/StrategyControls";
 import { SellForm } from "@/components/SellForm";
 import { deleteStrategyInput, deleteSale } from "@/app/actions";
@@ -105,9 +105,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
 
       <Panel
         title="Add what you bought"
-        subtitle="The price is copied onto the row now and never recalculated."
+        subtitle="Build the list first, then price the whole basket in one go so every row is frozen at the same moment."
       >
-        <AddInputForm strategyId={strategy.id} league={strategy.league} />
+        <BatchInputForm strategyId={strategy.id} />
       </Panel>
 
       <Panel title="Cost sheet" subtitle={`${strategy.inputs.length} inputs`}>
