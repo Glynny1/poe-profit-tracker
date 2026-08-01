@@ -101,30 +101,18 @@ export function diffSnapshots(a: SnapshotInput, b: SnapshotInput): DiffResult {
   const inScope = (l: SnapshotLine) =>
     scopeChanged.length === 0 || l.tabIds.some((t) => shared.has(t));
 
+  // Exactly one entry per item key on each side, and exactly one output line per
+  // key overall. DiffLine is keyed on (diffId, itemKey), so emitting a key twice
+  // is a unique-constraint violation rather than a cosmetic duplicate.
   const mapA = new Map<string, SnapshotLine>();
   const mapB = new Map<string, SnapshotLine>();
-  let outOfScope = 0n;
-  const outLines: DiffLine[] = [];
-
-  for (const l of a.lines) {
-    if (inScope(l)) mapA.set(l.itemKey, l);
-    else {
-      outOfScope -= lineValue(l);
-      outLines.push(makeScopeLine(l, "before"));
-    }
-  }
-  for (const l of b.lines) {
-    if (inScope(l)) mapB.set(l.itemKey, l);
-    else {
-      outOfScope += lineValue(l);
-      outLines.push(makeScopeLine(l, "after"));
-    }
-  }
+  for (const l of a.lines) mapA.set(l.itemKey, l);
+  for (const l of b.lines) mapB.set(l.itemKey, l);
 
   let quantityMicro = 0n;
   let priceMicro = 0n;
-  let coverageMicro = outOfScope;
-  const lines: DiffLine[] = [...outLines];
+  let coverageMicro = 0n;
+  const lines: DiffLine[] = [];
 
   for (const itemKey of new Set([...mapA.keys(), ...mapB.keys()])) {
     const la = mapA.get(itemKey);
@@ -132,6 +120,33 @@ export function diffSnapshots(a: SnapshotInput, b: SnapshotInput): DiffResult {
 
     const qA = BigInt(la?.qty ?? 0);
     const qB = BigInt(lb?.qty ?? 0);
+
+    // If either side of this item sits outside the tabs both snapshots covered,
+    // there is no meaningful before-and-after to compare. Book the whole change
+    // as coverage: ticking a tab holding 40 div is not income, and unticking one
+    // is not a loss. Handling both sides together here is what keeps a single
+    // line per key when an item is out of scope in A and B, or in scope in one
+    // and not the other.
+    if ((la && !inScope(la)) || (lb && !inScope(lb))) {
+      const coverage = (lb ? lineValue(lb) : 0n) - (la ? lineValue(la) : 0n);
+      coverageMicro += coverage;
+      const src = lb ?? la!;
+      lines.push({
+        itemKey,
+        displayName: src.displayName,
+        icon: src.icon,
+        qtyBefore: Number(qA),
+        qtyAfter: Number(qB),
+        qtyDelta: Number(qB - qA),
+        unitBefore: la?.unitMicro ?? null,
+        unitAfter: lb?.unitMicro ?? null,
+        quantityMicro: 0n,
+        priceMicro: 0n,
+        coverageMicro: coverage,
+        kind: "out_of_scope",
+      });
+      continue;
+    }
 
     // "Absent" and "present but unpriceable" are different things and must not
     // collapse. An item that left the stash is a real quantity change and is
@@ -220,24 +235,6 @@ export function diffSnapshots(a: SnapshotInput, b: SnapshotInput): DiffResult {
     reconciles: netMicro === totalAfter - totalBefore,
     lines,
     scopeChanged,
-  };
-}
-
-function makeScopeLine(l: SnapshotLine, side: "before" | "after"): DiffLine {
-  const v = lineValue(l);
-  return {
-    itemKey: l.itemKey,
-    displayName: l.displayName,
-    icon: l.icon,
-    qtyBefore: side === "before" ? l.qty : 0,
-    qtyAfter: side === "after" ? l.qty : 0,
-    qtyDelta: side === "after" ? l.qty : -l.qty,
-    unitBefore: side === "before" ? l.unitMicro : null,
-    unitAfter: side === "after" ? l.unitMicro : null,
-    quantityMicro: 0n,
-    priceMicro: 0n,
-    coverageMicro: side === "after" ? v : -v,
-    kind: "out_of_scope",
   };
 }
 

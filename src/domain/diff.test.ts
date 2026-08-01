@@ -210,6 +210,79 @@ describe("tab selection changes", () => {
   });
 });
 
+describe("one line per item key", () => {
+  // DiffLine's primary key is (diffId, itemKey). Emitting a key twice is not a
+  // cosmetic duplicate, it's a unique-constraint violation that kills the whole
+  // insert, and it took down the dashboard.
+  const noDuplicateKeys = (r: ReturnType<typeof diffSnapshots>) => {
+    const keys = r.lines.map((l) => l.itemKey);
+    expect(new Set(keys).size).toBe(keys.length);
+  };
+
+  it("emits one line when an item is out of scope on BOTH sides", () => {
+    const a = snap(
+      [
+        line({ itemKey: "cur:chaos orb", qty: 10, tabIds: ["t1"] }),
+        line({ itemKey: "cur:divine orb", qty: 5, unitMicro: 170n * C, tabIds: ["t2"] }),
+      ],
+      ["t1", "t2"],
+    );
+    const b = snap(
+      [
+        line({ itemKey: "cur:chaos orb", qty: 10, tabIds: ["t1"] }),
+        line({ itemKey: "cur:divine orb", qty: 8, unitMicro: 170n * C, tabIds: ["t2"] }),
+      ],
+      ["t1", "t3"],
+    );
+    const r = diffSnapshots(a, b);
+
+    noDuplicateKeys(r);
+    expect(r.quantityMicro).toBe(0n);
+    expectReconciles(r);
+  });
+
+  it("emits one line when an item is in scope in A but not in B", () => {
+    const a = snap([line({ itemKey: "cur:divine orb", qty: 5, unitMicro: 170n * C, tabIds: ["t1"] })], [
+      "t1",
+      "t2",
+    ]);
+    const b = snap([line({ itemKey: "cur:divine orb", qty: 5, unitMicro: 170n * C, tabIds: ["t2"] })], [
+      "t2",
+      "t3",
+    ]);
+    const r = diffSnapshots(a, b);
+
+    noDuplicateKeys(r);
+    expect(r.lines[0].kind).toBe("out_of_scope");
+    expectReconciles(r);
+  });
+
+  it("stays unique across a messy mix of scope changes", () => {
+    const a = snap(
+      [
+        line({ itemKey: "cur:chaos orb", qty: 100, tabIds: ["t1"] }),
+        line({ itemKey: "cur:divine orb", qty: 5, unitMicro: 170n * C, tabIds: ["t2"] }),
+        line({ itemKey: "cur:scarab", qty: 40, unitMicro: 2n * C, tabIds: ["t2", "t3"] }),
+        line({ itemKey: "h:rare", qty: 2, unitMicro: null, tabIds: ["t3"], isFungible: false }),
+      ],
+      ["t1", "t2", "t3"],
+    );
+    const b = snap(
+      [
+        line({ itemKey: "cur:chaos orb", qty: 250, tabIds: ["t1"] }),
+        line({ itemKey: "cur:divine orb", qty: 9, unitMicro: 170n * C, tabIds: ["t4"] }),
+        line({ itemKey: "cur:scarab", qty: 10, unitMicro: 2n * C, tabIds: ["t4"] }),
+        line({ itemKey: "h:rare", qty: 3, unitMicro: null, tabIds: ["t1"], isFungible: false }),
+      ],
+      ["t1", "t4"],
+    );
+    const r = diffSnapshots(a, b);
+
+    noDuplicateKeys(r);
+    expectReconciles(r);
+  });
+});
+
 describe("reconciliation", () => {
   it("is exact across a messy realistic interval", () => {
     const a = snap(
