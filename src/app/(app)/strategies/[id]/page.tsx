@@ -99,7 +99,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
   );
   const netMicro = realisedMicro - costMicro;
 
-  const perMap = strategy.mapsRun > 0 ? netMicro / BigInt(strategy.mapsRun) : null;
+
   const roi = costMicro > 0n ? Number(realisedMicro) / Number(costMicro) : null;
 
   // --- finish run -----------------------------------------------------------
@@ -145,6 +145,14 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
 
   const runResult = await buildRunResult(user.id, strategy.baselineSnapshotId, strategy.endSnapshotId, rate);
 
+  const runGained = runResult?.gains.reduce((t, l) => t + l.quantityMicro, 0n) ?? 0n;
+  const runLost = runResult?.losses.reduce((t, l) => t + l.quantityMicro, 0n) ?? 0n;
+  const runPerMap =
+    runResult && strategy.mapsRun > 0 ? runResult.netMicro / BigInt(strategy.mapsRun) : null;
+  // Return on what the cost sheet says you spent setting the strategy up.
+  const runRoi =
+    runResult && costMicro > 0n ? Number(runResult.netMicro) / Number(costMicro) : null;
+
   return (
     <div className="space-y-6">
       <Panel
@@ -162,47 +170,103 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
           />
         }
       >
-        {/* Net is the question this page exists to answer, so it is the only
-            big number and the three inputs to it step down beside it. */}
+        {/* Once a run is finished the stash delta IS the answer, and it already
+            nets off the inputs that were consumed. Leading with realised minus
+            cost then reads as a loss for anyone who has not yet sold their loot,
+            which is exactly backwards. Before a run is finished there is no
+            stash delta yet, so the cost sheet is the only thing to lead with. */}
         <div className="grid gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-          <Stat
-            label="Net"
-            size="hero"
-            value={fmt(netMicro, true)}
-            tone={netMicro >= 0n ? "gain" : "loss"}
-            hint={
-              [
-                roi != null ? `${roi.toFixed(2)}x ROI` : null,
-                perMap != null ? `${fmt(perMap)} per map` : null,
-              ]
-                .filter(Boolean)
-                .join(" | ") || "Realised minus cost"
-            }
-          />
-          <div className="grid gap-6 sm:grid-cols-3 lg:border-l lg:border-[#262c3a] lg:pl-10">
-            <Stat label="Cost" size="sm" value={fmt(costMicro)} hint="Frozen at what you paid" />
-            <Stat
-              label="Realised"
-              size="sm"
-              value={fmt(realisedMicro)}
-              tone="gain"
-              hint="Frozen at each sale"
-            />
-            <Stat
-              label="Still held"
-              size="sm"
-              value={fmt(unrealisedMicro)}
-              tone="drift"
-              hint="At today's price"
-            />
-          </div>
+          {runResult ? (
+            <>
+              <Stat
+                label="Net from the run"
+                size="hero"
+                value={fmt(runResult.netMicro, true)}
+                tone={runResult.netMicro >= 0n ? "gain" : "loss"}
+                hint={
+                  [
+                    runPerMap != null ? `${fmt(runPerMap)} per map` : null,
+                    runRoi != null ? `${runRoi.toFixed(2)}x on the cost sheet` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" | ") || "What your stash gained, after what it used up"
+                }
+              />
+              <div className="grid gap-6 sm:grid-cols-3 lg:border-l lg:border-[#262c3a] lg:pl-10">
+                <Stat
+                  label="Came in"
+                  size="sm"
+                  value={fmt(runGained)}
+                  tone="gain"
+                  hint="Loot that arrived"
+                />
+                <Stat
+                  label="Went out"
+                  size="sm"
+                  value={fmt(runLost)}
+                  tone="loss"
+                  hint="Consumed or traded away"
+                />
+                <Stat
+                  label="Cost sheet"
+                  size="sm"
+                  value={fmt(costMicro)}
+                  hint="What you paid to set up"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <Stat
+                label="Cost so far"
+                size="hero"
+                value={fmt(costMicro)}
+                hint="Finish the run to see what your stash actually gained."
+              />
+              <div className="grid gap-6 sm:grid-cols-3 lg:border-l lg:border-[#262c3a] lg:pl-10">
+                <Stat
+                  label="Realised"
+                  size="sm"
+                  value={fmt(realisedMicro)}
+                  tone="gain"
+                  hint="Frozen at each sale"
+                />
+                <Stat
+                  label="Still held"
+                  size="sm"
+                  value={fmt(unrealisedMicro)}
+                  tone="drift"
+                  hint="At today's price"
+                />
+                <Stat
+                  label="Realised minus cost"
+                  size="sm"
+                  value={fmt(netMicro, true)}
+                  tone={netMicro >= 0n ? "gain" : "loss"}
+                  hint={roi != null ? `${roi.toFixed(2)}x ROI` : "Only counts what you have sold"}
+                />
+              </div>
+            </>
+          )}
         </div>
       </Panel>
 
       <Alert>
-        <strong>Cost</strong> and <strong>Realised</strong> are frozen at the moment you recorded
-        them; <strong>Still held</strong> uses today&apos;s price. They&apos;re shown separately
-        because adding them would mix three different points in time into one meaningless number.
+        {runResult ? (
+          <>
+            <strong>Net from the run</strong> is what your stash gained, already net of the inputs
+            it used up. Don&apos;t subtract the cost sheet from it as well: anything you bought
+            before starting was in your stash at the baseline, so consuming it is counted under
+            &quot;went out&quot; and taking it off twice would understate the run.
+          </>
+        ) : (
+          <>
+            <strong>Cost</strong> and <strong>Realised</strong> are frozen at the moment you
+            recorded them; <strong>Still held</strong> uses today&apos;s price. They&apos;re shown
+            separately because adding them would mix three different points in time into one
+            meaningless number.
+          </>
+        )}
       </Alert>
 
       <Panel
