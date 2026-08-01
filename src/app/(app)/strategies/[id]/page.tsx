@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getFreshPriceBookId, getLatestDivineRate } from "@/lib/services/priceBook";
-import { formatMoney, microToChaos } from "@/domain/money";
+import { formatMoney } from "@/domain/money";
 import { Alert, Empty, Panel, Stat } from "@/components/ui";
 import { BatchInputForm } from "@/components/BatchInputForm";
 import { StrategyControls } from "@/components/StrategyControls";
@@ -114,53 +114,45 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
         {strategy.inputs.length === 0 ? (
           <Empty>Nothing recorded yet.</Empty>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-              <tr className="border-b border-[#2a3346]">
-                <th className="pb-2 font-medium">Item</th>
-                <th className="pb-2 text-right font-medium">Qty</th>
-                <th className="pb-2 text-right font-medium">Paid each</th>
-                <th className="pb-2 text-right font-medium">Now</th>
-                <th className="pb-2 text-right font-medium">Move</th>
-                <th className="pb-2 text-right font-medium">Total cost</th>
-                <th className="pb-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {strategy.inputs.map((i) => {
-                const now = current.get(i.priceKey) ?? null;
-                const movePct =
-                  now != null && i.unitCostMicro > 0n
-                    ? (microToChaos(now) / microToChaos(i.unitCostMicro) - 1) * 100
-                    : null;
-                return (
+          <div className="overflow-x-auto">
+            {/* Deliberately no live price or percentage move. A cost sheet answers
+                what this run cost, and a column that drifts every refresh invites
+                reading it as profit when it is nothing of the sort. Current value
+                of what you still hold is in the P&L card above, where it belongs. */}
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
+                <tr className="border-b border-[#2a3346]">
+                  <th className="pb-2 font-medium">Item</th>
+                  <th className="pb-2 text-right font-medium">Qty</th>
+                  <th className="pb-2 text-right font-medium">Paid each</th>
+                  <th className="pb-2 text-right font-medium">Total cost</th>
+                  <th className="pb-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {strategy.inputs.map((i) => (
                   <tr key={i.id} className="border-b border-[#2a3346]/50 last:border-0">
-                    <td className="py-2 text-[#e6ebf5]">
-                      {i.displayName}
-                      {i.isManualOverride && (
-                        <span className="ml-2 text-xs text-[#c8aa6e]">your price</span>
-                      )}
+                    <td className="py-2">
+                      <span className="flex items-center gap-2.5">
+                        {i.icon ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={i.icon}
+                            alt=""
+                            className="size-6 shrink-0 object-contain"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span className="size-6 shrink-0 rounded bg-[#1b2130]" />
+                        )}
+                        <span className="text-[#e6ebf5]">{i.displayName}</span>
+                        {i.isManualOverride && (
+                          <span className="text-xs text-[#c8aa6e]">your price</span>
+                        )}
+                      </span>
                     </td>
                     <td className="py-2 text-right text-[#8b97ad]">{i.qty}</td>
                     <td className="py-2 text-right">{fmt(i.unitCostMicro)}</td>
-                    <td className="py-2 text-right text-[#8b97ad]">
-                      {now == null ? "-" : fmt(now)}
-                    </td>
-                    <td
-                      className={`py-2 text-right ${
-                        movePct == null
-                          ? "text-[#8b97ad]"
-                          : movePct > 0
-                            ? "text-[#4ade80]"
-                            : movePct < 0
-                              ? "text-[#f87171]"
-                              : "text-[#8b97ad]"
-                      }`}
-                    >
-                      {movePct == null
-                        ? "-"
-                        : `${movePct > 0 ? "+" : ""}${movePct.toFixed(1)}%`}
-                    </td>
                     <td className="py-2 text-right">{fmt(BigInt(i.qty) * i.unitCostMicro)}</td>
                     <td className="py-2 text-right">
                       <form action={deleteStrategyInput.bind(null, i.id)}>
@@ -170,10 +162,10 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
                       </form>
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Panel>
 
