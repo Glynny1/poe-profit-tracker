@@ -76,13 +76,24 @@ INVITE_CODE=friends-3f9a2b7c,ggg-review-cdbd8a7eb846
 
 Both work. The point is that you can delete one later without disturbing the
 other — useful for handing GGG a code while they review your OAuth application,
-then revoking just that one afterwards. Generate one with:
+then revoking just that one afterwards.
 
 ```bash
-npm run invite
+npm run invite -- ggg-review
 ```
 
-Remember to **redeploy** after changing it, same as any other variable.
+That generates a code, adds it to your local `.env`, and prints the full list.
+
+**Generating a code is not the same as activating it.** The app reads
+`INVITE_CODE` once at startup, so:
+
+- **Locally** — restart `npm run dev`. A running server is still using the old list.
+- **On the hosted site** — `.env` is not involved at all. Copy the full
+  comma-separated list the command prints into Vercel's `INVITE_CODE`, then
+  **redeploy**.
+
+Skip that step and the new code is rejected with "That invite code is not valid",
+which looks like the code is wrong when it simply isn't loaded yet.
 
 ### Then redeploy — this step is easy to miss
 
