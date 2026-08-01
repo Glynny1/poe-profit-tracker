@@ -31,7 +31,7 @@ export default function LoginPage() {
             <Input name="password" type="password" autoComplete="current-password" required />
           </div>
           <Button variant="primary" type="submit" disabled={loginPending} className="w-full">
-            {loginPending ? "Signing in…" : "Sign in"}
+            {loginPending ? "Signing in..." : "Sign in"}
           </Button>
         </form>
       </Panel>
@@ -58,7 +58,7 @@ export default function LoginPage() {
             />
           </div>
           <Button type="submit" disabled={regPending} className="w-full">
-            {regPending ? "Creating…" : "Create account"}
+            {regPending ? "Creating..." : "Create account"}
           </Button>
         </form>
       </Panel>

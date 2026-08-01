@@ -56,7 +56,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
         title={strategy.name}
         subtitle={
           strategy.notes ??
-          `Started ${strategy.startedAt.toLocaleString("en-GB")}${strategy.endedAt ? ` · closed ${strategy.endedAt.toLocaleString("en-GB")}` : ""}`
+          `Started ${strategy.startedAt.toLocaleString("en-GB")}${strategy.endedAt ? ` | closed ${strategy.endedAt.toLocaleString("en-GB")}` : ""}`
         }
         actions={
           <StrategyControls
@@ -87,11 +87,11 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
             tone={netMicro >= 0n ? "gain" : "loss"}
             hint={
               [
-                roi != null ? `${roi.toFixed(2)}× ROI` : null,
+                roi != null ? `${roi.toFixed(2)}x ROI` : null,
                 perMap != null ? `${fmt(perMap)} / map` : null,
               ]
                 .filter(Boolean)
-                .join(" · ") || "realised − cost"
+                .join(" | ") || "realised - cost"
             }
           />
         </div>
@@ -144,7 +144,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
                     <td className="py-2 text-right text-[#8b97ad]">{i.qty}</td>
                     <td className="py-2 text-right">{fmt(i.unitCostMicro)}</td>
                     <td className="py-2 text-right text-[#8b97ad]">
-                      {now == null ? "—" : fmt(now)}
+                      {now == null ? "-" : fmt(now)}
                     </td>
                     <td
                       className={`py-2 text-right ${
@@ -158,7 +158,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
                       }`}
                     >
                       {movePct == null
-                        ? "—"
+                        ? "-"
                         : `${movePct > 0 ? "+" : ""}${movePct.toFixed(1)}%`}
                     </td>
                     <td className="py-2 text-right">{fmt(BigInt(i.qty) * i.unitCostMicro)}</td>

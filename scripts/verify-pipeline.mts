@@ -31,11 +31,11 @@ function stash(items: Record<string, unknown>[]) {
 
 const fail: string[] = [];
 function check(label: string, ok: boolean, detail = "") {
-  console.log(`  ${ok ? "PASS" : "FAIL"}  ${label}${detail ? `  — ${detail}` : ""}`);
+  console.log(`  ${ok ? "PASS" : "FAIL"}  ${label}${detail ? `: ${detail}` : ""}`);
   if (!ok) fail.push(label);
 }
 
-console.log(`Fetching live price book for ${LEAGUE}…`);
+console.log(`Fetching live price book for ${LEAGUE}...`);
 const book = await fetchPriceBook(LEAGUE);
 const index = new PriceIndex(book.rows, 0);
 const rate = book.divineRateMicro;

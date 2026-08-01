@@ -3,8 +3,8 @@
  *
  * Both sides of the match (a stash item, and a poe.ninja price row) are reduced
  * to the same `priceKey` string by functions in this one file, so the two can
- * never drift apart. Where an exact key cannot exist — gems are only priced at
- * discrete level/quality tiers, cluster jewels only at quantised item levels —
+ * never drift apart. Where an exact key cannot exist (gems are only priced at
+ * discrete level/quality tiers, cluster jewels only at quantised item levels),
  * `PriceIndex` falls back to snapping DOWN to the nearest priced tier and marks
  * the valuation approximate. Snapping down is deliberate: a conservative
  * undervalue is a lower bound, an overvalue is a lie.
@@ -129,7 +129,7 @@ export function clusterParts(item: StashItem): { enchant: string; passives: numb
       passives = parseInt(p[1], 10);
       continue;
     }
-    // "Added Small Passive Skills grant: X" — X is the row's `name` on poe.ninja.
+    // "Added Small Passive Skills grant: X". X is the row's `name` on poe.ninja.
     const g = m.match(/Added Small Passive Skills grant:?\s*(.+)$/i);
     if (g) enchant = g[1].trim();
     else if (!enchant) enchant = m.trim();
@@ -193,7 +193,7 @@ export function isFungible(item: StashItem): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Price index — the row side, plus tier snapping
+// Price index: the row side, plus tier snapping
 // ---------------------------------------------------------------------------
 
 interface GemEntry {

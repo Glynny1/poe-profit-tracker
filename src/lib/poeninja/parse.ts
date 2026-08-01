@@ -103,7 +103,7 @@ function gemNames(line: ItemLine): string[] {
   return [...names].filter(Boolean);
 }
 
-/** Tier lives only inside the row name — the Map dataset has no tier field. */
+/** Tier lives only inside the row name. The Map dataset has no tier field. */
 function genericMapTier(line: ItemLine): number | null {
   const m = line.name?.match(/^Map \(Tier (\d+)\)$/);
   return m ? parseInt(m[1], 10) : null;
@@ -162,7 +162,7 @@ export function parseItems(data: ItemOverview, type: string): PriceRow[] {
       //
       // NOTE: do NOT filter rows by `variant: ", Gen-N"`. That is the standard
       // advice from older tools, but in the current league EVERY generic tier
-      // row is Gen-24 — applying the filter deletes map pricing entirely.
+      // row is Gen-24, so applying the filter deletes map pricing entirely.
       const tier = genericMapTier(line);
       if (tier == null) continue;
       out.push({ ...base, priceKey: mapKey(tier), displayName: `Map (Tier ${tier})` });

@@ -25,7 +25,7 @@ const USERNAME = "__smoke_test__";
 
 const fail: string[] = [];
 function check(label: string, ok: boolean, detail = "") {
-  console.log(`  ${ok ? "PASS" : "FAIL"}  ${label}${detail ? `  — ${detail}` : ""}`);
+  console.log(`  ${ok ? "PASS" : "FAIL"}  ${label}${detail ? `: ${detail}` : ""}`);
   if (!ok) fail.push(label);
 }
 
@@ -50,10 +50,10 @@ function tabsFrom(json: string): ParsedTab[] {
   return parseStashJson(json).tabs;
 }
 
-console.log("Cleaning up any previous run…");
+console.log("Cleaning up any previous run...");
 await prisma.appUser.deleteMany({ where: { username: USERNAME } });
 
-console.log("Creating test user…");
+console.log("Creating test user...");
 const user = await prisma.appUser.create({
   data: { username: USERNAME, passwordHash: "x", league: LEAGUE, minCount: 0 },
 });
@@ -85,7 +85,7 @@ check("bigint total survives the round trip", s1.snapshot.totalMicro === s1.buil
 check("captured_at is server-stamped", s1.snapshot.capturedAt instanceof Date);
 check("tabIds array persisted", s1.snapshot.tabIds.length === 1);
 
-console.log("\nSnapshot 2 — picked up 200 chaos and 2 divines");
+console.log("\nSnapshot 2: picked up 200 chaos and 2 divines");
 const s2 = await createSnapshot({
   userId: user.id,
   league: LEAGUE,
@@ -115,7 +115,7 @@ check("recomputing a diff is idempotent", again.id === diff.id);
 const latest = await latestDiff(user.id, LEAGUE);
 check("latestDiff finds the newest pair", latest?.id === diff.id);
 
-console.log("\nStrategy — the frozen cost guarantee");
+console.log("\nStrategy: the frozen cost guarantee");
 const strategy = await prisma.strategy.create({
   data: {
     userId: user.id,
@@ -168,7 +168,7 @@ check("a sale can exist with no strategy", sale.strategyId === null);
 const pinned = await prisma.snapshot.findUnique({ where: { id: s1.snapshot.id } });
 check("strategy baseline is pinned", pinned!.pinned === true);
 
-console.log("\nCleaning up…");
+console.log("\nCleaning up...");
 await prisma.appUser.delete({ where: { id: user.id } });
 const orphan = await prisma.snapshot.count({ where: { userId: user.id } });
 check("deleting a user cascades their data", orphan === 0);

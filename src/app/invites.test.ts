@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 /**
  * INVITE_CODE parsing, tested directly. The logic lives inside a "use server"
- * module that can't be imported here, so this mirrors it — keep the two in step.
+ * module that can't be imported here, so this mirrors it. Keep the two in step.
  */
 function validInviteCodes(raw: string | undefined): string[] {
   return (raw ?? "")

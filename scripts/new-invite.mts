@@ -67,7 +67,7 @@ New invite code:
 Added to .env, which now holds ${updated.length} code${updated.length === 1 ? "" : "s"}:
   ${updated.join("\n  ")}
 
-RESTART the app for this to take effect — environment variables are read at
+RESTART the app for this to take effect. Environment variables are read at
 startup, so a running "npm run dev" is still using the old list. Stop it with
 Ctrl+C and start it again.
 

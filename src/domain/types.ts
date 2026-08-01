@@ -28,7 +28,7 @@ export interface ItemMod {
   /**
    * GGG serialises an empty flags set as `[]` (a JSON array), not `{}`, because
    * their serialiser encodes an empty associative array as a list. A strict
-   * object schema rejects the whole document — accept both shapes.
+   * object schema rejects the whole document. Accept both shapes.
    */
   flags?:
     | {
@@ -42,7 +42,7 @@ export interface ItemMod {
 }
 
 export interface StashItem {
-  /** "a unique 64 digit hexadecimal string" — documented OPTIONAL, so never assume it. */
+  /** "a unique 64 digit hexadecimal string", documented OPTIONAL, so never assume it. */
   id?: string;
   name: string;
   typeLine: string;
@@ -87,7 +87,7 @@ export interface StashTab {
   metadata?: {
     public?: boolean;
     folder?: boolean;
-    /** Can be 2, 4 or 6 hex chars — needs zero-padding before use as a CSS colour. */
+    /** Can be 2, 4 or 6 hex chars, so needs zero-padding before use as a CSS colour. */
     colour?: string;
     items?: number;
     layout?: unknown;
@@ -116,7 +116,7 @@ export const FrameType = {
 
 /**
  * One canonical line in a snapshot. Fungibles are already summed across every
- * tracked tab at this point — that summing is what makes tab moves, stack merges
+ * tracked tab at this point. That summing is what makes tab moves, stack merges
  * and stack splits produce a zero delta structurally rather than as a patched-up
  * special case.
  */

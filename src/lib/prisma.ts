@@ -3,7 +3,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 // Next evaluates every imported module during `next build` while collecting page
 // data. Constructing the client at module scope therefore made DATABASE_URL a
-// BUILD-time requirement, not just a runtime one — so a deploy failed before it
+// BUILD-time requirement, not just a runtime one, so a deploy failed before it
 // ever got as far as running. Build it lazily instead: the error still fires,
 // but only when something actually tries to reach the database.
 
@@ -13,7 +13,7 @@ function createClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error(
-      "DATABASE_URL is not set. Locally, copy .env.example to .env — the default " +
+      "DATABASE_URL is not set. Locally, copy .env.example to .env. The default " +
         "already points at the database `npm run dev` starts for you. When hosting, " +
         "set it in your platform's environment variables.",
     );

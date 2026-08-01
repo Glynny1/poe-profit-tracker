@@ -66,7 +66,7 @@ export default async function SnapshotsPage() {
                     }`}
                   >
                     {delta == null
-                      ? "—"
+                      ? "-"
                       : formatMoney(delta, user.displayCurrency, rate, { sign: true })}
                   </td>
                 </tr>

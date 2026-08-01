@@ -28,14 +28,14 @@ export default async function SetupPage() {
 
       <Panel
         title="Build your stash URL"
-        subtitle="Type your account name normally — the tricky encoding is handled for you."
+        subtitle="Type your account name normally. The tricky encoding is handled for you."
       >
         <StashUrlHelper account={user.poeAccount ?? ""} league={user.league} />
       </Panel>
 
       <Panel
         title="Which tabs count?"
-        subtitle="Only ticked tabs are valued and diffed. Changing this later won't break your history — the difference is reported as a coverage change, not as profit."
+        subtitle="Only ticked tabs are valued and diffed. Changing this later won't break your history. The difference is reported as a coverage change, not as profit."
       >
         {tabs.length === 0 ? (
           <p className="text-sm text-[#8b97ad]">Import some JSON first and your tabs appear here.</p>

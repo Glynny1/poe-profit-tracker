@@ -17,7 +17,7 @@ export interface SessionData {
 // Checked when a session is actually used, not at module load. Next evaluates
 // every imported module during `next build`, so throwing at module scope made
 // SESSION_SECRET a build-time requirement and failed deploys before they ran.
-// It still refuses to sign anything with a weak key — just at the right moment.
+// It still refuses to sign anything with a weak key, just at the right moment.
 function sessionSecret(): string {
   const secret = process.env.SESSION_SECRET;
   if (!secret || secret.length < 32) {

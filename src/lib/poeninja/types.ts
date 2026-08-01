@@ -1,5 +1,5 @@
 /**
- * poe.ninja economy API — the shapes we actually consume.
+ * poe.ninja economy API: the shapes we actually consume.
  *
  * Base is https://poe.ninja/poe1/api/economy. The old poe.ninja/api/data/*
  * endpoints return 404 as of mid-2026; any tutorial or sample referencing
@@ -23,7 +23,7 @@ export interface ExchangeOverview {
 }
 
 export interface ExchangeLine {
-  /** Slug only — there is NO name on this object. Join to `items` by id. */
+  /** Slug only. There is NO name on this object. Join to `items` by id. */
   id: string;
   /** Value in `core.primary` units, which is chaos for PoE1. */
   primaryValue: number;
@@ -36,7 +36,7 @@ export interface ExchangeLine {
 export interface ExchangeItem {
   id: string;
   name: string;
-  /** Path only — prefix with https://web.poecdn.com when it starts with '/'. */
+  /** Path only. Prefix with https://web.poecdn.com when it starts with '/'. */
   image?: string;
   category?: string;
   detailsId?: string;
@@ -69,7 +69,7 @@ export interface ItemLine {
   synthesised?: boolean;
   mutated?: boolean;
   chaosValue: number;
-  /** Rounded to 2dp — never sum these, always compute from chaosValue. */
+  /** Rounded to 2dp, so never sum these, always compute from chaosValue. */
   divineValue?: number;
   exaltedValue?: number;
   /** The only confidence signal available; there is no lowConfidence flag. */
@@ -83,7 +83,7 @@ export interface ItemLine {
  * Fungibles. All priced through the EXCHANGE endpoint so that every chaos value
  * shares one basis with `core.rates.divine`.
  *
- * poe.ninja publishes two chaos:divine ratios that disagree by ~19% — the
+ * poe.ninja publishes two chaos:divine ratios that disagree by ~19%: the
  * exchange rate (~168 c/div) and the stash-listing rate (~143 c/div). Mixing
  * them means a stash of nothing but Divine Orbs reports the wrong number of
  * divines. We use exchange for everything and never read the stash currency

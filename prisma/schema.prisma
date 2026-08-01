@@ -1,4 +1,4 @@
-// PoE 1 Profit Tracker — data model
+// PoE 1 Profit Tracker data model
 //
 // Money rule: every monetary column is integer micro-chaos (chaos * 1_000_000)
 // stored as BigInt. There are no floats in the money path. Divine is a display
@@ -124,7 +124,7 @@ model Snapshot {
   id           String   @id @default(cuid())
   userId       String
   league       String
-  // SERVER-stamped. Never trust a client clock for ordering — one skewed clock
+  // SERVER-stamped. Never trust a client clock for ordering, because one skewed clock
   // corrupts every strategy whose window it lands inside.
   capturedAt   DateTime @default(now())
   // Hash of the sorted tracked-tab id set, so we always know what this covered.
@@ -165,7 +165,7 @@ model SnapshotLine {
   unitMicro   BigInt?
   isFungible  Boolean
   // Which tracked tabs contributed to this line, for the UI only. Never part of
-  // identity — including it would make tab moves look like sales.
+  // identity. Including it would make tab moves look like sales.
   tabIds      String[]
 
   snapshot    Snapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
@@ -297,7 +297,7 @@ model Sale {
 model StagedImport {
   userId    String   @id
   league    String
-  /// ParsedTab[] — the raw imported tabs and their items.
+  /// ParsedTab[]: the raw imported tabs and their items.
   tabs      Json
   updatedAt DateTime @updatedAt
 
@@ -306,7 +306,7 @@ model StagedImport {
 
 // Token bucket for outbound GGG requests. Lives in the DB because the legacy
 // stash endpoint rate-limits per IP, and on serverless every invocation is a
-// fresh process — in-memory state would let concurrent requests overrun the
+// fresh process, so in-memory state would let concurrent requests overrun the
 // limit and earn a 1-hour ban on the server's IP.
 model FetchBudget {
   id           String   @id

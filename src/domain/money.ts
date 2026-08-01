@@ -6,7 +6,7 @@
  * needs an epsilon, and an epsilon means "we hope this is right". With integers
  * it is provable, so a broken interval is detected rather than displayed.
  *
- * Divine is a DISPLAY UNIT ONLY. Never store, sum, or compare divine values —
+ * Divine is a DISPLAY UNIT ONLY. Never store, sum, or compare divine values,
  * poe.ninja rounds `divineValue` to 2dp, which is 5-50% error on cheap items,
  * and the chaos:divine rate moves. Convert once, at render, using the rate that
  * was recorded on the price book the figure came from.
@@ -58,7 +58,7 @@ export function formatMoney(
     body = c >= 10000 ? `${round(c / 1000, 1)}k c` : `${round(c, c < 10 ? 2 : 0)} c`;
   }
 
-  const prefix = negative ? "−" : opts.sign ? "+" : "";
+  const prefix = negative ? "-" : opts.sign ? "+" : "";
   return prefix + body;
 }
 

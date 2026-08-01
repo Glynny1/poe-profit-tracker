@@ -20,7 +20,7 @@ export interface FetchReport {
   type: string;
   ok: boolean;
   rows: number;
-  /** 404 means the category no longer exists — expected, not an error. */
+  /** 404 means the category no longer exists. Expected, not an error. */
   status?: number;
   error?: string;
 }

@@ -58,7 +58,7 @@ function clearStaleLock(): boolean {
     try {
       // Signal 0 tests for existence without touching the process.
       process.kill(pid, 0);
-      return false; // still alive — not stale, leave it alone
+      return false; // still alive, not stale, leave it alone
     } catch {
       /* no such process: the lock is stale */
     }
@@ -80,7 +80,7 @@ export interface LocalDb {
 
 export async function startLocalDb({ reset = false } = {}): Promise<LocalDb> {
   if (reset && existsSync(DATA_DIR)) {
-    console.log("Removing existing data directory…");
+    console.log("Removing existing data directory...");
     rmSync(DATA_DIR, { recursive: true, force: true });
   }
 
@@ -90,7 +90,7 @@ export async function startLocalDb({ reset = false } = {}): Promise<LocalDb> {
       return { url: URL, owned: false, stop: async () => {} };
     }
     throw new Error(
-      `Port ${PORT} is held by a process that isn't answering queries — usually a\n` +
+      `Port ${PORT} is held by a process that isn't answering queries, usually a\n` +
         `PostgreSQL that was force-killed rather than shut down.\n\n` +
         `Find and stop it, then try again:\n` +
         `  netstat -ano | findstr :${PORT}\n` +
@@ -102,7 +102,7 @@ export async function startLocalDb({ reset = false } = {}): Promise<LocalDb> {
 
   // Imported here rather than at the top so that a missing binary produces this
   // explanation instead of a module-resolution stack trace. It is an OPTIONAL
-  // dependency — a 108 MB platform binary that hosting platforms have no use for,
+  // dependency, a 108 MB platform binary that hosting platforms have no use for,
   // and which must never be able to fail a deploy.
   const EmbeddedPostgres = await import("embedded-postgres")
     .then((m) => m.default)
@@ -127,7 +127,7 @@ export async function startLocalDb({ reset = false } = {}): Promise<LocalDb> {
   });
 
   if (fresh) {
-    console.log("Initialising a new database cluster (first run only)…");
+    console.log("Initialising a new database cluster (first run only)...");
     await pg.initialise();
   }
 

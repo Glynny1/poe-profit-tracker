@@ -13,8 +13,8 @@ interface Report {
 }
 
 /**
- * The debugging screen. When poe.ninja changes shape — which it did in June 2026,
- * breaking every tool built on the old endpoints — this is where you find out,
+ * The debugging screen. When poe.ninja changes shape, which it did in June 2026,
+ * breaking every tool built on the old endpoints, this is where you find out,
  * rather than from a net worth that quietly halved.
  */
 export default async function PricesPage() {
@@ -44,7 +44,7 @@ export default async function PricesPage() {
         }
       >
         {!book ? (
-          <Empty>No price book yet — take a snapshot and one will be fetched.</Empty>
+          <Empty>No price book yet. Take a snapshot and one will be fetched.</Empty>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <Stat label="Priced items" value={book._count.prices.toLocaleString()} />
@@ -77,7 +77,7 @@ export default async function PricesPage() {
 
       {empty.length > 0 && (
         <Alert kind="info">
-          {empty.map((e) => e.type).join(", ")} returned no rows. That is normal — the category
+          {empty.map((e) => e.type).join(", ")} returned no rows. That is normal. The category
           exists but has nothing traded in this league.
         </Alert>
       )}
@@ -107,7 +107,7 @@ export default async function PricesPage() {
 
       <Alert>
         <strong>What can&apos;t be priced.</strong> poe.ninja doesn&apos;t price rare items at all,
-        by design — they&apos;re excluded and counted separately, so net worth is a lower bound.
+        by design, so they&apos;re excluded and counted separately and net worth is a lower bound.
         Unique variants (different Watcher&apos;s Eye or Precursor&apos;s Emblem rolls) aren&apos;t
         derivable from stash JSON either, so those collapse to the most-traded variant. Gems price
         only at whole tiers, so an off-tier gem snaps down to the nearest priced one.

@@ -55,7 +55,7 @@ export default async function Dashboard() {
           {diff ? (
             <>
               <Stat
-                label="Profit — last snapshot"
+                label="Profit since last snapshot"
                 big
                 value={fmt(diff.quantityMicro, true)}
                 tone={diff.quantityMicro >= 0n ? "gain" : "loss"}
@@ -63,14 +63,14 @@ export default async function Dashboard() {
               />
               <p className="mt-3 text-sm text-[#7dd3fc]">
                 {fmt(diff.priceMicro, true)} market drift
-                <span className="text-[#8b97ad]"> — prices moved, you didn&apos;t earn it.</span>
+                <span className="text-[#8b97ad]"> (prices moved, you didn&apos;t earn it)</span>
               </p>
               {diff.coverageMicro !== 0n && (
                 <p className="mt-1 text-sm text-[#fbbf24]">
                   {fmt(diff.coverageMicro, true)} pricing coverage changed
                   <span className="text-[#8b97ad]">
                     {" "}
-                    — what we could price changed, not what you own.
+                    (what we could price changed, not what you own)
                   </span>
                 </p>
               )}
@@ -79,7 +79,7 @@ export default async function Dashboard() {
             <Stat
               label="Profit"
               big
-              value="—"
+              value="-"
               hint="Take a second snapshot to see a change."
             />
           )}
@@ -97,7 +97,7 @@ export default async function Dashboard() {
       {diff && !diff.reconciles && (
         <Alert kind="warn">
           <strong>This interval didn&apos;t balance.</strong> The three terms don&apos;t sum to the
-          net worth change, so the profit figure above cannot be trusted. This is a bug — please
+          net worth change, so the profit figure above cannot be trusted. This is a bug, so please
           report it rather than working around it.
         </Alert>
       )}
@@ -159,10 +159,10 @@ export default async function Dashboard() {
                           : "text-[#8b97ad]"
                     }`}
                   >
-                    {l.quantityMicro === 0n ? "—" : fmt(l.quantityMicro, true)}
+                    {l.quantityMicro === 0n ? "-" : fmt(l.quantityMicro, true)}
                   </td>
                   <td className="py-2 text-right text-[#7dd3fc]">
-                    {l.priceMicro === 0n ? "—" : fmt(l.priceMicro, true)}
+                    {l.priceMicro === 0n ? "-" : fmt(l.priceMicro, true)}
                   </td>
                 </tr>
               ))}
@@ -172,7 +172,7 @@ export default async function Dashboard() {
       </Panel>
 
       <Alert>
-        A stash diff can&apos;t tell selling from vendoring, consuming or trading away — so a sale
+        A stash diff can&apos;t tell selling from vendoring, consuming or trading away, so a sale
         nets to roughly zero (you lose the item, you gain the currency) and that is correct. Use{" "}
         <strong>Sell</strong> on the Items screen to record what you actually got.
       </Alert>

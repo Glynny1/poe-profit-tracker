@@ -28,7 +28,7 @@ export function SettingsForm({
       {state.ok && <Alert kind="ok">{state.ok}</Alert>}
 
       <div>
-        <Label hint="self-reported — we can't verify it without OAuth">PoE account name</Label>
+        <Label hint="self-reported, we can't verify it without OAuth">PoE account name</Label>
         <Input name="poeAccount" defaultValue={user.poeAccount} placeholder="YourName#1234" />
       </div>
 
@@ -36,7 +36,7 @@ export function SettingsForm({
         <Label>League</Label>
         <Input name="league" defaultValue={user.league} placeholder="Allflame" />
         <p className="mt-1.5 text-xs text-[#8b97ad]">
-          The API name, not the marketing name — 3.29 &ldquo;Curse of the Allflame&rdquo; is just{" "}
+          The API name, not the marketing name. 3.29 &quot;Curse of the Allflame&quot; is just{" "}
           <code className="text-[#c8aa6e]">Allflame</code>. poe.ninja only prices Allflame, Hardcore
           Allflame, Standard and Hardcore; SSF and Ruthless have no price data at all.
         </p>
@@ -62,7 +62,7 @@ export function SettingsForm({
         <p className="mt-1.5 text-xs text-[#8b97ad]">
           Values what you&apos;re still holding at this share of poe.ninja&apos;s list price. The gap
           between list price and what you actually get selling in bulk is the biggest systematic
-          error in tools like this — 85 is a realistic setting, 100 means no adjustment.
+          error in tools like this. 85 is a realistic setting, 100 means no adjustment.
         </p>
       </div>
 
@@ -76,7 +76,7 @@ export function SettingsForm({
       </div>
 
       <Button variant="primary" type="submit" disabled={pending}>
-        {pending ? "Saving…" : "Save settings"}
+        {pending ? "Saving..." : "Save settings"}
       </Button>
     </form>
   );

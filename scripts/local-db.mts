@@ -5,12 +5,12 @@
  *   npm run db:local:reset  wipe the data directory and start fresh
  *
  * You usually don't need this: `npm run dev` starts the database itself. Use it
- * when you want the database up WITHOUT the app — to run `npm run db:push`,
+ * when you want the database up WITHOUT the app, to run `npm run db:push`,
  * `npm run smoke`, or `npm run db:studio` on their own.
  *
  * `embedded-postgres` downloads an actual Postgres binary and runs it out of
- * ./.local-db. That matters because the schema uses Postgres-specific features —
- * scalar arrays for tab ids, jsonb for the fetch report — so SQLite would need a
+ * ./.local-db. That matters because the schema uses Postgres-specific features:
+ * scalar arrays for tab ids, jsonb for the fetch report, so SQLite would need a
  * different schema and would stop being a faithful rehearsal for production.
  */
 
@@ -37,7 +37,7 @@ let stopping = false;
 const shutdown = async () => {
   if (stopping) return;
   stopping = true;
-  console.log("\nStopping PostgreSQL…");
+  console.log("\nStopping PostgreSQL...");
   await db.stop();
   process.exit(0);
 };

@@ -11,9 +11,9 @@
  *
  *   qB*pB - qA*pA  ===  (qB-qA)*pB  +  qA*(pB-pA)
  *
- * so `netWorth(B) - netWorth(A) === Σquantity + Σprice + Σcoverage` must hold to
+ * so `netWorth(B) - netWorth(A) === sum(quantity) + sum(price) + sum(coverage)` must hold to
  * the unit. We assert it in bigint before returning. If it ever fails the caller
- * must refuse to show a profit figure for that interval — a wrong number that
+ * must refuse to show a profit figure for that interval. A wrong number that
  * looks plausible is worse than an honest gap.
  */
 
@@ -50,7 +50,7 @@ export interface DiffResult {
   quantityMicro: bigint;
   priceMicro: bigint;
   coverageMicro: bigint;
-  /** Σ of the three terms. Equals netWorth(B) − netWorth(A) when `reconciles`. */
+  /** Total of the three terms. Equals netWorth(B) - netWorth(A) when `reconciles`. */
   netMicro: bigint;
   totalBefore: bigint;
   totalAfter: bigint;
@@ -80,7 +80,7 @@ export function netWorth(lines: SnapshotLine[]): bigint {
  *
  * When the tracked tab set changed between A and B we diff over the
  * INTERSECTION and route the symmetric difference into coverage_effect. The
- * alternative — refusing to diff on a scope mismatch — permanently blanks any
+ * alternative, refusing to diff on a scope mismatch, permanently blanks any
  * strategy the moment its owner ticks a tab, which over a 90-day league is a
  * certainty rather than an edge case. Ticking a tab holding 40 div is not
  * income, but it must not destroy the timeline either.
@@ -96,7 +96,7 @@ export function diffSnapshots(a: SnapshotInput, b: SnapshotInput): DiffResult {
 
   // A line is in scope only if it was seen in a tab both snapshots covered.
   // Lines carry every contributing tab, so a stack split across an included and
-  // an excluded tab stays partially in scope — which is correct, because the
+  // an excluded tab stays partially in scope, which is correct, because the
   // quantity we can compare is the quantity in the shared tabs.
   const inScope = (l: SnapshotLine) =>
     scopeChanged.length === 0 || l.tabIds.some((t) => shared.has(t));
@@ -164,7 +164,7 @@ export function diffSnapshots(a: SnapshotInput, b: SnapshotInput): DiffResult {
               : "unchanged";
     } else if (pA === null && pB !== null) {
       // A poe.ninja category came back, or the listing count rose past the
-      // confidence threshold. The item was always there — this is not income.
+      // confidence threshold. The item was always there, so this is not income.
       coverage = qB * pB;
       kind = "became_priceable";
     } else if (pA !== null && pB === null) {

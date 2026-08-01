@@ -52,7 +52,7 @@ export function AddInputForm({ strategyId }: { strategyId: string; league: strin
       )}
 
       <Button variant="primary" type="submit" disabled={pending || !picked}>
-        {pending ? "Recording…" : "Add cost"}
+        {pending ? "Recording..." : "Add cost"}
       </Button>
     </form>
   );

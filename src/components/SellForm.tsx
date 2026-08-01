@@ -40,7 +40,7 @@ export function SellForm({ strategyId }: { strategyId?: string }) {
       </div>
 
       <Button variant="primary" type="submit" disabled={pending || !picked}>
-        {pending ? "Recording…" : "Record sale"}
+        {pending ? "Recording..." : "Record sale"}
       </Button>
     </form>
   );

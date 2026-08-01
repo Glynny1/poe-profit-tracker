@@ -5,8 +5,8 @@ import { getFreshPriceBookId } from "@/lib/services/priceBook";
 
 /**
  * Typeahead over the current price book. Used by the strategy input picker, so
- * the user can record any priceable thing — scarabs, fragments, astrolabes and
- * maps, but also delirium orbs, catalysts or logbooks — without the app deciding
+ * the user can record any priceable thing: scarabs, fragments, astrolabes and
+ * maps, but also delirium orbs, catalysts or logbooks, without the app deciding
  * in advance which costs are allowed to matter.
  */
 export async function GET(req: Request) {

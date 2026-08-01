@@ -41,7 +41,7 @@ export default async function ComparePage({
     <div className="space-y-6">
       <Panel
         title="Snapshot comparison"
-        subtitle={`${a.capturedAt.toLocaleString("en-GB")} → ${b.capturedAt.toLocaleString("en-GB")}`}
+        subtitle={`${a.capturedAt.toLocaleString("en-GB")} -> ${b.capturedAt.toLocaleString("en-GB")}`}
       >
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
@@ -65,7 +65,7 @@ export default async function ComparePage({
           <Stat
             label="Net worth change"
             value={fmt(net)}
-            hint={diff.reconciles ? "✓ the three terms reconcile exactly" : "does not reconcile"}
+            hint={diff.reconciles ? "the three terms reconcile exactly" : "does not reconcile"}
           />
         </div>
       </Panel>
@@ -98,7 +98,7 @@ export default async function ComparePage({
                   <td className="py-2 text-[#e6ebf5]">{l.displayName}</td>
                   <td className="py-2 text-xs text-[#8b97ad]">{KIND_LABEL[l.kind] ?? l.kind}</td>
                   <td className="py-2 text-right text-[#8b97ad]">
-                    {l.qtyDelta > 0 ? `+${l.qtyDelta}` : l.qtyDelta || "—"}
+                    {l.qtyDelta > 0 ? `+${l.qtyDelta}` : l.qtyDelta || "-"}
                   </td>
                   <td
                     className={`py-2 text-right ${
@@ -109,13 +109,13 @@ export default async function ComparePage({
                           : "text-[#8b97ad]"
                     }`}
                   >
-                    {l.quantityMicro === 0n ? "—" : fmt(l.quantityMicro)}
+                    {l.quantityMicro === 0n ? "-" : fmt(l.quantityMicro)}
                   </td>
                   <td className="py-2 text-right text-[#7dd3fc]">
-                    {l.priceMicro === 0n ? "—" : fmt(l.priceMicro)}
+                    {l.priceMicro === 0n ? "-" : fmt(l.priceMicro)}
                   </td>
                   <td className="py-2 text-right text-[#fbbf24]">
-                    {l.coverageMicro === 0n ? "—" : fmt(l.coverageMicro)}
+                    {l.coverageMicro === 0n ? "-" : fmt(l.coverageMicro)}
                   </td>
                 </tr>
               ))}

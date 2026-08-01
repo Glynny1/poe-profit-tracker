@@ -7,7 +7,7 @@ import { Alert, Button, Input, Label } from "@/components/ui";
  * Builds the stash URL from an account name typed normally.
  *
  * Hand-encoding this is a genuine trap. The '#' before the discriminator has to
- * be written %23, and a wrong guess doesn't fail loudly — '%69' is a perfectly
+ * be written %23, and a wrong guess doesn't fail loudly. '%69' is a perfectly
  * valid escape for 'i', so "Glynny%6921" silently becomes "Glynnyi21" and you
  * get a permission error that looks like being logged out.
  *
@@ -51,7 +51,7 @@ export function StashUrlHelper({
           />
         </div>
         <div>
-          <Label hint="0, then 1, 2…">Tab number</Label>
+          <Label hint="0, then 1, 2...">Tab number</Label>
           <Input
             type="number"
             min={0}
@@ -63,8 +63,8 @@ export function StashUrlHelper({
 
       {trimmed && !looksComplete && (
         <Alert kind="warn">
-          That doesn&apos;t look complete. Account names end in a <code>#</code> and four digits —
-          check the top-left of pathofexile.com when you&apos;re logged in. Type it normally; the{" "}
+          That doesn&apos;t look complete. Account names end in a <code>#</code> and four digits.
+          Check the top-left of pathofexile.com when you&apos;re logged in. Type it normally; the{" "}
           <code>#</code> is encoded for you below.
         </Alert>
       )}
@@ -94,7 +94,7 @@ export function StashUrlHelper({
 
       <p className="text-sm text-[#8b97ad]">
         Open it while logged in to pathofexile.com, copy the whole response, and paste it above.
-        Then bump the tab number and repeat — imports accumulate, so you can do a few at a time.
+        Then bump the tab number and repeat. Imports accumulate, so you can do a few at a time.
       </p>
     </div>
   );

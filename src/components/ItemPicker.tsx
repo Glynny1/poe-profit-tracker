@@ -43,7 +43,7 @@ export function ItemPicker({
         setResults(json.results ?? []);
         setOpen(true);
       } catch {
-        /* aborted or offline — the picker just shows nothing */
+        /* aborted or offline, so the picker just shows nothing */
       } finally {
         setLoading(false);
       }
@@ -89,7 +89,7 @@ export function ItemPicker({
       <div className="flex gap-2">
         <Input
           value={query}
-          placeholder="Search scarabs, fragments, astrolabes, maps, anything…"
+          placeholder="Search scarabs, fragments, astrolabes, maps, anything..."
           autoComplete="off"
           onChange={(e) => {
             setQuery(e.target.value);
@@ -132,10 +132,10 @@ export function ItemPicker({
         </ul>
       )}
 
-      {loading && <p className="mt-1 text-xs text-[#8b97ad]">Searching…</p>}
+      {loading && <p className="mt-1 text-xs text-[#8b97ad]">Searching...</p>}
       {!loading && query.trim().length >= 2 && !picked && visible.length === 0 && open && (
         <p className="mt-1 text-xs text-[#8b97ad]">
-          Nothing matched. poe.ninja doesn&apos;t price rare items — enter the cost manually instead.
+          Nothing matched. poe.ninja doesn&apos;t price rare items, so enter the cost manually instead.
         </p>
       )}
     </div>

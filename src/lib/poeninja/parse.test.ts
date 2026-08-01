@@ -12,7 +12,7 @@ const EXCHANGE: ExchangeOverview = {
     { id: "divine", primaryValue: 168.6, volumePrimaryValue: 900000 },
     { id: "abyss-scarab-of-descending", primaryValue: 2.41, volumePrimaryValue: 17347 },
     { id: "fruiting-astrolabe", primaryValue: 152.2, volumePrimaryValue: 400 },
-    // Present in lines but missing from items — must be dropped, not shown as a slug.
+    // Present in lines but missing from items, so must be dropped, not shown as a slug.
     { id: "orphan-slug", primaryValue: 5, volumePrimaryValue: 1 },
   ],
   items: [
@@ -62,7 +62,7 @@ describe("exchange parsing", () => {
 
 describe("map parsing", () => {
   // Every generic tier row in the live league carries variant ", Gen-24".
-  // Filtering that variant as "legacy" — the standard advice from older tools —
+  // Filtering that variant as "legacy", the standard advice from older tools,
   // would delete map pricing entirely.
   const MAPS: ItemOverview = {
     lines: [

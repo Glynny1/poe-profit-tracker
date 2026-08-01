@@ -1,5 +1,5 @@
 /**
- * `npm run dev` — starts the local database, then Next, as one command.
+ * `npm run dev` starts the local database, then Next, as one command.
  *
  * Two terminals is an easy thing to forget, and forgetting it produces a Prisma
  * P1001 that says nothing about the real cause. Owning the database here means
@@ -25,7 +25,7 @@ async function shutdown(code = 0) {
   if (shuttingDown) return;
   shuttingDown = true;
   if (db.owned) {
-    console.log("\nStopping the database…");
+    console.log("\nStopping the database...");
     await db.stop();
   }
   process.exit(code);

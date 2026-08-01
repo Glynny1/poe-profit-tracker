@@ -45,5 +45,5 @@ next-env.d.ts
 # local embedded postgres data directory
 /.local-db
 
-# Personal working notes — contains a draft email with account details
+# Personal working notes, containing a draft email with account details
 /docs/oauth-application.md

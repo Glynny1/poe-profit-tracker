@@ -17,7 +17,7 @@ export interface CreateSnapshotArgs {
 
 /**
  * A snapshot is written all-or-nothing. A half-read stash looks exactly like a
- * mass sale, so a partial capture must never reach the database — the transaction
+ * mass sale, so a partial capture must never reach the database. The transaction
  * here is what makes that guarantee real rather than aspirational.
  */
 export async function createSnapshot(args: CreateSnapshotArgs) {

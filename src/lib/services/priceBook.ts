@@ -42,7 +42,7 @@ export async function refreshPriceBook(league: string): Promise<string> {
   // Several categories can legitimately yield the same key (a gem row indexed
   // under both its transfigured and base name, for instance). The composite
   // primary key would reject the duplicate, so collapse to the most liquid row
-  // first — the same rule PriceIndex applies in memory.
+  // first, the same rule PriceIndex applies in memory.
   const best = new Map<string, PriceRow>();
   for (const row of result.rows) {
     const prev = best.get(row.priceKey);

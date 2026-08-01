@@ -22,7 +22,7 @@ export function ImportForm() {
             name="json"
             rows={7}
             spellCheck={false}
-            placeholder='{"numTabs":24,"tabs":[…],"items":[…]}'
+            placeholder='{"numTabs":24,"tabs":[...],"items":[...]}'
             className="w-full rounded-lg border border-[#2a3346] bg-[#0b0d12] p-3 font-mono text-xs text-[#e6ebf5] outline-none placeholder:text-[#8b97ad]/50 focus:border-[#c8aa6e]"
           />
         </div>
@@ -37,12 +37,12 @@ export function ImportForm() {
           />
           <p className="mt-1.5 text-xs text-[#8b97ad]">
             Hosted on Vercel, a single request is capped at 4.5 MB. A large stash exceeds that in
-            one go — import a few tabs at a time and they accumulate.
+            one go, so import a few tabs at a time and they accumulate.
           </p>
         </div>
 
         <Button type="submit" disabled={pending}>
-          {pending ? "Reading…" : "Import"}
+          {pending ? "Reading..." : "Import"}
         </Button>
       </form>
 
@@ -55,7 +55,7 @@ export function ImportForm() {
             sitting in your pack become +3 div of phantom profit the moment you deposit them.
           </p>
           <Button variant="primary" type="submit" disabled={snapPending}>
-            {snapPending ? "Taking snapshot…" : "Take snapshot"}
+            {snapPending ? "Taking snapshot..." : "Take snapshot"}
           </Button>
         </form>
       </div>

@@ -6,8 +6,8 @@
  * Reads PRODUCTION_DATABASE_URL from .env and runs `prisma db push` against it,
  * leaving DATABASE_URL alone.
  *
- * The obvious alternative — "temporarily point DATABASE_URL at Neon, push, then
- * change it back" — is a trap: forget the last step and your local dev server is
+ * The obvious alternative, "temporarily point DATABASE_URL at Neon, push, then
+ * change it back", is a trap. Forget the last step and your local dev server is
  * silently reading and writing the database your friends are using. Keeping the
  * two URLs in separate variables means that can't happen by accident.
  */
@@ -30,8 +30,8 @@ if (!url) {
 
 if (url.includes("localhost")) {
   console.error(
-    `\nPRODUCTION_DATABASE_URL points at localhost, which is your own machine —\n` +
-      `that is almost certainly a copy/paste slip. It should be the Neon string.\n`,
+    `\nPRODUCTION_DATABASE_URL points at localhost, which is your own machine.\n` +
+      `That is almost certainly a copy/paste slip. It should be the Neon string.\n`,
   );
   process.exit(1);
 }
@@ -45,7 +45,7 @@ if (!host.includes("-pooler")) {
   );
 }
 
-console.log(`Creating tables in ${host} …\n`);
+console.log(`Creating tables in ${host} ...\n`);
 
 const result = spawnSync("npx", ["prisma", "db", "push"], {
   stdio: "inherit",

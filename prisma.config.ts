@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
-// `prisma generate` does not need a database connection — only migrations and
+// `prisma generate` does not need a database connection. Only migrations and
 // `db push` do. Prisma's own env() helper THROWS when the variable is missing,
 // which turns a `postinstall: prisma generate` into a hard `npm install` failure
 // on any host where DATABASE_URL isn't present at install time (Vercel, CI).

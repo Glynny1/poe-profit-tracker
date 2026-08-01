@@ -19,7 +19,7 @@ export interface ActionState {
 
 /**
  * INVITE_CODE accepts a comma-separated list, so different people can be given
- * different codes — your friends one, GGG another while they review the OAuth
+ * different codes: your friends one, GGG another while they review the OAuth
  * application. Removing a code later revokes only that route in, without
  * disturbing anyone else's.
  */
@@ -188,7 +188,7 @@ export async function takeSnapshot(_prev: ActionState): Promise<ActionState> {
   const user = await requireUser();
   const staged = await loadStaged(user.id, user.league);
   if (staged.length === 0) {
-    return { error: "Import your stash JSON first — there is nothing staged to snapshot." };
+    return { error: "Import your stash JSON first. There is nothing staged to snapshot." };
   }
 
   const tracked = await prisma.trackedTab.findMany({
@@ -232,7 +232,7 @@ export async function createStrategy(_prev: ActionState, form: FormData): Promis
   if (!name) return { error: "Give the strategy a name." };
 
   // Pin the current snapshot as the baseline, and protect it from any future
-  // retention job — losing a baseline would make the strategy unmeasurable.
+  // retention job. Losing a baseline would make the strategy unmeasurable.
   const baseline = await prisma.snapshot.findFirst({
     where: { userId: user.id, league: user.league },
     orderBy: { capturedAt: "desc" },
@@ -256,7 +256,7 @@ export async function createStrategy(_prev: ActionState, form: FormData): Promis
 
 /**
  * Add an input to a strategy, freezing its price at this instant (S3).
- * The frozen figure is COPIED onto the row — there is deliberately no join back
+ * The frozen figure is COPIED onto the row. There is deliberately no join back
  * to a live price, because that is precisely the bug this feature exists to avoid.
  */
 export async function addStrategyInput(_prev: ActionState, form: FormData): Promise<ActionState> {
@@ -282,7 +282,7 @@ export async function addStrategyInput(_prev: ActionState, form: FormData): Prom
   const manual = overrideChaos !== "";
   const unitCostMicro = manual ? chaosToMicro(Number(overrideChaos)) : (price?.chaosMicro ?? 0n);
   if (!manual && !price) {
-    return { error: "That item has no current price — enter what you actually paid instead." };
+    return { error: "That item has no current price. Enter what you actually paid instead." };
   }
 
   await prisma.strategyInput.create({
@@ -349,7 +349,7 @@ export async function setStrategyShared(strategyId: string, shared: boolean) {
  * Record a realised sale (S4), freezing the price at this instant.
  *
  * `strategyId` is optional on purpose: most trades happen outside a strategy,
- * and a Sale is the ONLY mechanism that gives the app a realised price — a stash
+ * and a Sale is the ONLY mechanism that gives the app a realised price. A stash
  * diff can never distinguish sold from vendored from consumed.
  */
 export async function recordSale(_prev: ActionState, form: FormData): Promise<ActionState> {
@@ -370,7 +370,7 @@ export async function recordSale(_prev: ActionState, form: FormData): Promise<Ac
   const manual = overrideChaos !== "";
   const unitPriceMicro = manual ? chaosToMicro(Number(overrideChaos)) : (price?.chaosMicro ?? 0n);
   if (!manual && !price) {
-    return { error: "No current price for that item — enter what you actually sold it for." };
+    return { error: "No current price for that item. Enter what you actually sold it for." };
   }
 
   await prisma.sale.create({

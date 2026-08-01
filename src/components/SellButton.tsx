@@ -9,7 +9,7 @@ const initial: ActionState = {};
 /**
  * S4: freeze a realised price at this instant.
  *
- * `strategyId` is optional — most trades aren't part of a strategy, and locking
+ * `strategyId` is optional, because most trades aren't part of a strategy, and locking
  * this behind one would mean the app never learns what anything actually sold for.
  */
 export function SellButton({
@@ -64,12 +64,12 @@ export function SellButton({
 
       <p className="text-xs text-[#8b97ad]">
         Leave the price blank to freeze today&apos;s market price. Fill it in if you got something
-        different — that&apos;s what makes the historical figure real.
+        different. That&apos;s what makes the historical figure real.
       </p>
 
       <div className="flex gap-2">
         <Button variant="primary" type="submit" disabled={pending}>
-          {pending ? "Recording…" : "Record sale"}
+          {pending ? "Recording..." : "Record sale"}
         </Button>
         <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
           Cancel

@@ -20,7 +20,7 @@ import type { StashItem, StashTab } from "@/domain/types";
 
 export interface ImportResult {
   tabs: ParsedTab[];
-  /** Tabs that exist but carry no items — usually a tab list fetched without contents. */
+  /** Tabs that exist but carry no items, usually a tab list fetched without contents. */
   emptyTabs: number;
   warnings: string[];
 }
@@ -116,7 +116,7 @@ export function parseStashJson(text: string): ImportResult {
     // common import mistake.
     warnings.push(
       "None of these tabs contain any items. The tab-list endpoint " +
-        "(/stash/<league>) never returns items — you need each tab's own " +
+        "(/stash/<league>) never returns items. You need each tab's own " +
         "response (/stash/<league>/<tab id>).",
     );
   }

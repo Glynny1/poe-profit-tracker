@@ -27,7 +27,7 @@ export function NewStrategyForm() {
         while the strategy still needs it.
       </p>
       <Button variant="primary" type="submit" disabled={pending}>
-        {pending ? "Starting…" : "Start strategy"}
+        {pending ? "Starting..." : "Start strategy"}
       </Button>
     </form>
   );

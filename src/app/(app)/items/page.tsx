@@ -104,13 +104,13 @@ export default async function ItemsPage() {
                 {unpriced.slice(0, 40).map((l) => (
                   <li key={l.itemKey}>
                     {l.displayName}
-                    {l.qty > 1 && <span className="text-[#8b97ad]/60"> ×{l.qty}</span>}
+                    {l.qty > 1 && <span className="text-[#8b97ad]/60"> x{l.qty}</span>}
                   </li>
                 ))}
               </ul>
               {unpriced.length > 40 && (
                 <p className="mt-3 text-xs text-[#8b97ad]">
-                  and {unpriced.length - 40} more…
+                  and {unpriced.length - 40} more...
                 </p>
               )}
             </Panel>
@@ -124,7 +124,7 @@ export default async function ItemsPage() {
       >
         {sales.length === 0 ? (
           <Empty>
-            No sales recorded. A stash diff can&apos;t tell selling from vendoring or consuming —
+            No sales recorded. A stash diff can&apos;t tell selling from vendoring or consuming, so
             recording a sale is what makes realised profit real.
           </Empty>
         ) : (
@@ -167,7 +167,7 @@ export default async function ItemsPage() {
       </Panel>
 
       <Alert>
-        Prices freeze the moment you record a sale, so looking back shows what you actually got —
+        Prices freeze the moment you record a sale, so looking back shows what you actually got,
         not what the item would be worth today.
       </Alert>
     </div>
