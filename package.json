@@ -21,7 +21,8 @@
     "dev:next-only": "next dev",
     "db:push:prod": "tsx scripts/db-push-prod.mts",
     "secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
-    "invite": "tsx scripts/new-invite.mts"
+    "invite": "tsx scripts/new-invite.mts",
+    "user": "tsx scripts/user.mts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
