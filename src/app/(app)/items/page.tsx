@@ -1,9 +1,11 @@
 import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getLatestDivineRate } from "@/lib/services/priceBook";
+import { getHoldings } from "@/lib/services/holdings";
 import { formatMoney } from "@/domain/money";
 import { Alert, Empty, Panel, Stat } from "@/components/ui";
-import { SellButton } from "@/components/SellButton";
+import { ChaosAndDivine } from "@/components/Coin";
+import { HoldingsTable } from "@/components/HoldingsTable";
 import { deleteSale } from "@/app/actions";
 
 export default async function ItemsPage() {
@@ -23,14 +25,11 @@ export default async function ItemsPage() {
     take: 30,
   });
 
-  const priced = (latest?.lines ?? [])
-    .filter((l) => l.unitMicro != null)
-    .sort((a, b) => {
-      const av = BigInt(a.qty) * a.unitMicro!;
-      const bv = BigInt(b.qty) * b.unitMicro!;
-      return bv > av ? 1 : bv < av ? -1 : 0;
-    });
-  const unpriced = (latest?.lines ?? []).filter((l) => l.unitMicro == null);
+  // Sorted, icon-attached and tab-named by the service, so this page and the
+  // dashboard cannot drift apart in how they present the same holdings.
+  const { priced: holdings, unpriced, icons } = latest
+    ? await getHoldings(latest.id)
+    : { priced: [], unpriced: [], icons: { chaos: null, divine: null } };
 
   const realised = sales.reduce((t, s) => t + BigInt(s.qty) * s.unitPriceMicro, 0n);
 
@@ -44,7 +43,12 @@ export default async function ItemsPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-3">
             <Panel>
-              <Stat label="Priced holdings" value={fmt(latest.totalMicro)} />
+              <Stat
+                label="Priced holdings"
+                value={
+                  <ChaosAndDivine micro={latest.totalMicro} divineRateMicro={rate} icons={icons} />
+                }
+              />
             </Panel>
             <Panel>
               <Stat
@@ -55,7 +59,11 @@ export default async function ItemsPage() {
               />
             </Panel>
             <Panel>
-              <Stat label="Realised from sales" value={fmt(realised)} tone="gain" />
+              <Stat
+                label="Realised from sales"
+                value={<ChaosAndDivine micro={realised} divineRateMicro={rate} icons={icons} />}
+                tone="gain"
+              />
             </Panel>
           </div>
 
@@ -63,36 +71,13 @@ export default async function ItemsPage() {
             title="Holdings"
             subtitle="Current price shown live. Recording a sale freezes the price at that moment."
           >
-            <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase tracking-wide text-[#8b97ad]">
-                <tr className="border-b border-[#2a3346]">
-                  <th className="pb-2 font-medium">Item</th>
-                  <th className="pb-2 text-right font-medium">Qty</th>
-                  <th className="pb-2 text-right font-medium">Unit</th>
-                  <th className="pb-2 text-right font-medium">Value</th>
-                  <th className="pb-2 text-right font-medium"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {priced.slice(0, 100).map((l) => (
-                  <tr key={l.itemKey} className="border-b border-[#2a3346]/50 last:border-0">
-                    <td className="py-2 text-[#e6ebf5]">{l.displayName}</td>
-                    <td className="py-2 text-right text-[#8b97ad]">{l.qty.toLocaleString()}</td>
-                    <td className="py-2 text-right text-[#8b97ad]">{fmt(l.unitMicro!)}</td>
-                    <td className="py-2 text-right">{fmt(BigInt(l.qty) * l.unitMicro!)}</td>
-                    <td className="py-2 text-right">
-                      {l.priceKey && (
-                        <SellButton
-                          priceKey={l.priceKey}
-                          displayName={l.displayName}
-                          maxQty={l.qty}
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <HoldingsTable
+              holdings={holdings}
+              icons={icons}
+              divineRateMicro={rate}
+              limit={200}
+              showSell
+            />
           </Panel>
 
           {unpriced.length > 0 && (

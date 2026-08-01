@@ -3,9 +3,12 @@ import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { latestDiff } from "@/lib/services/snapshots";
 import { getLatestDivineRate } from "@/lib/services/priceBook";
+import { getHoldings } from "@/lib/services/holdings";
 import { formatMoney } from "@/domain/money";
 import { Alert, Empty, Panel, Stat } from "@/components/ui";
 import { NetWorthChart } from "@/components/NetWorthChart";
+import { ChaosAndDivine } from "@/components/Coin";
+import { HoldingsTable } from "@/components/HoldingsTable";
 
 export default async function Dashboard() {
   const user = await requireUser();
@@ -36,6 +39,7 @@ export default async function Dashboard() {
 
   const latest = snapshots[0];
   const diff = await latestDiff(user.id, user.league);
+  const { priced, icons } = await getHoldings(latest.id);
 
   const series = [...snapshots]
     .reverse()
@@ -47,7 +51,9 @@ export default async function Dashboard() {
         <Panel>
           <Stat
             label="Net worth"
-            value={fmt(latest.totalMicro)}
+            value={
+              <ChaosAndDivine micro={latest.totalMicro} divineRateMicro={rate} icons={icons} />
+            }
             hint={`${latest.itemCount.toLocaleString()} items tracked`}
           />
         </Panel>
@@ -111,6 +117,23 @@ export default async function Dashboard() {
           />
         </Panel>
       )}
+
+      <Panel
+        title="Breakdown"
+        subtitle={`${priced.length.toLocaleString()} priced holdings in the latest snapshot, most valuable first`}
+        actions={
+          <Link href="/items" className="text-sm text-[#c8aa6e] hover:underline">
+            All items
+          </Link>
+        }
+      >
+        <HoldingsTable
+          holdings={priced}
+          icons={icons}
+          divineRateMicro={rate}
+          limit={20}
+        />
+      </Panel>
 
       <Panel
         title="Biggest movers"
