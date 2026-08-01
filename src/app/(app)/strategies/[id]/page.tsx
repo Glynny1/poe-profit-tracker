@@ -2,12 +2,62 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getFreshPriceBookId, getLatestDivineRate } from "@/lib/services/priceBook";
+import { getCurrencyIcons, getHoldings } from "@/lib/services/holdings";
+import { computeDiff } from "@/lib/services/snapshots";
+import type { ParsedTab } from "@/domain/snapshot";
 import { formatMoney } from "@/domain/money";
 import { Alert, Empty, Panel, Stat } from "@/components/ui";
 import { BatchInputForm } from "@/components/BatchInputForm";
 import { StrategyControls } from "@/components/StrategyControls";
 import { SellForm } from "@/components/SellForm";
+import { FinishRunForm } from "@/components/FinishRunForm";
+import { RunResult, type RunLine } from "@/components/RunResult";
 import { deleteStrategyInput, deleteSale } from "@/app/actions";
+
+/**
+ * Compare the baseline and closing snapshots of a finished run.
+ *
+ * Icons are joined from the closing snapshot's lines, which carry a priceKey,
+ * because a diff line only knows its itemKey.
+ */
+async function buildRunResult(
+  userId: string,
+  fromId: string | null,
+  toId: string | null,
+  divineRateMicro: bigint,
+) {
+  if (!fromId || !toId) return null;
+
+  const diff = await computeDiff(userId, fromId, toId);
+  const { priced, unpriced } = await getHoldings(toId);
+  const iconByKey = new Map(
+    [...priced, ...unpriced].map((h) => [h.itemKey, h.icon] as const),
+  );
+
+  const toLine = (l: (typeof diff.lines)[number]): RunLine => ({
+    itemKey: l.itemKey,
+    displayName: l.displayName,
+    icon: iconByKey.get(l.itemKey) ?? null,
+    qtyDelta: l.qtyDelta,
+    quantityMicro: l.quantityMicro,
+  });
+
+  const byValue = (a: RunLine, b: RunLine) => {
+    const av = a.quantityMicro < 0n ? -a.quantityMicro : a.quantityMicro;
+    const bv = b.quantityMicro < 0n ? -b.quantityMicro : b.quantityMicro;
+    return bv > av ? 1 : bv < av ? -1 : 0;
+  };
+
+  return {
+    gains: diff.lines.filter((l) => l.quantityMicro > 0n).map(toLine).sort(byValue),
+    losses: diff.lines.filter((l) => l.quantityMicro < 0n).map(toLine).sort(byValue),
+    netMicro: diff.quantityMicro,
+    driftMicro: diff.priceMicro,
+    coverageMicro: diff.coverageMicro,
+    reconciles: diff.reconciles,
+    divineRateMicro,
+  };
+}
 
 export default async function StrategyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -49,6 +99,37 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
 
   const perMap = strategy.mapsRun > 0 ? netMicro / BigInt(strategy.mapsRun) : null;
   const roi = costMicro > 0n ? Number(realisedMicro) / Number(costMicro) : null;
+
+  // --- finish run -----------------------------------------------------------
+
+  const baseline = strategy.baselineSnapshotId
+    ? await prisma.snapshot.findUnique({
+        where: { id: strategy.baselineSnapshotId },
+        select: { tabIds: true },
+      })
+    : null;
+  const baselineTabIds = baseline?.tabIds ?? [];
+
+  const stagedRow = await prisma.stagedImport.findUnique({ where: { userId: user.id } });
+  const stagedTabs = ((stagedRow?.tabs as unknown as ParsedTab[]) ?? []).map((t) => ({
+    tabId: t.tabId,
+    name: t.name,
+    items: t.items?.length ?? 0,
+  }));
+
+  const stashUrl = user.poeAccount
+    ? `https://www.pathofexile.com/character-window/get-stash-items` +
+      `?accountName=${encodeURIComponent(user.poeAccount)}` +
+      `&realm=pc&league=${encodeURIComponent(user.league)}&tabs=1&tabIndex=0`
+    : null;
+
+  // Icons come from the closing snapshot, since that is what the run's figures
+  // were valued against.
+  const { icons } = strategy.endSnapshotId
+    ? await getHoldings(strategy.endSnapshotId)
+    : { icons: await getCurrencyIcons(user.league) };
+
+  const runResult = await buildRunResult(user.id, strategy.baselineSnapshotId, strategy.endSnapshotId, rate);
 
   return (
     <div className="space-y-6">
@@ -168,6 +249,29 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
           </div>
         )}
       </Panel>
+
+      <Panel
+        title={strategy.endedAt ? "Run result" : "Finish run"}
+        subtitle={
+          strategy.endedAt
+            ? `Stash compared between ${strategy.startedAt.toLocaleString("en-GB")} and ${strategy.endedAt.toLocaleString("en-GB")}`
+            : "Refresh your stash and compare it to when you started."
+        }
+      >
+        <FinishRunForm
+          strategyId={strategy.id}
+          finished={!!strategy.endSnapshotId}
+          stashUrl={stashUrl}
+          stagedTabs={stagedTabs}
+          baselineTabIds={baselineTabIds}
+        />
+      </Panel>
+
+      {runResult && (
+        <Panel title="What the run produced" subtitle="Valued at the prices when you finished">
+          <RunResult {...runResult} icons={icons} mapsRun={strategy.mapsRun} />
+        </Panel>
+      )}
 
       <Panel title="Returns" subtitle="Record what you actually sold, at the price you got.">
         <div className="mb-6 border-b border-[#2a3346] pb-6">

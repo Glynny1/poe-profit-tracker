@@ -373,6 +373,125 @@ export async function addStrategyInputs(
   return { ok: `Added ${rows.length} item${rows.length === 1 ? "" : "s"} at frozen prices.` };
 }
 
+/**
+ * Stage stash JSON against a strategy, ready for finishRun.
+ *
+ * Shares the same staging area as the Import screen, so a stash that needs
+ * several pastes accumulates the same way here.
+ */
+export async function importForRun(_prev: ActionState, form: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const strategyId = String(form.get("strategyId") ?? "");
+  const file = form.get("file");
+  let text = String(form.get("json") ?? "").trim();
+
+  if (file instanceof File && file.size > 0) text = await file.text();
+  if (!text) return { error: "Paste the stash JSON or choose a file first." };
+
+  let result;
+  try {
+    result = parseStashJson(text);
+  } catch (e) {
+    return { error: e instanceof ImportError ? e.message : "Could not read that JSON." };
+  }
+
+  const merged = mergeTabs(await loadStaged(user.id, user.league), result.tabs);
+  await saveStaged(user.id, user.league, merged);
+
+  revalidatePath(`/strategies/${strategyId}`);
+  const withItems = merged.filter((t) => t.items.length > 0).length;
+  return {
+    ok:
+      `Ready: ${withItems} tab${withItems === 1 ? "" : "s"} with items staged. ` +
+      `Paste more tabs if you need to, then finish the run.`,
+  };
+}
+
+/**
+ * Close a strategy by snapshotting the stash and comparing it to the baseline.
+ *
+ * Both snapshots are pinned: the whole point of a finished run is being able to
+ * look at it later, and a retention job reclaiming either end would make it
+ * unmeasurable.
+ */
+export async function finishRun(_prev: ActionState, form: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const strategyId = String(form.get("strategyId") ?? "");
+
+  const strategy = await prisma.strategy.findFirst({
+    where: { id: strategyId, userId: user.id },
+  });
+  if (!strategy) return { error: "Strategy not found." };
+  if (!strategy.baselineSnapshotId) {
+    return {
+      error:
+        "This strategy has no baseline snapshot, so there is nothing to compare against. " +
+        "It was started before you had taken any snapshot.",
+    };
+  }
+
+  const staged = await loadStaged(user.id, user.league);
+  if (staged.length === 0) {
+    return { error: "Import your stash JSON above first, so there is something to compare." };
+  }
+
+  // Tabs chosen on this screen win. Falling back to the globally tracked set
+  // keeps the button working if the checkboxes never rendered.
+  const chosen = form.getAll("tabIds").map(String).filter(Boolean);
+  let wanted: Set<string>;
+  if (chosen.length > 0) {
+    wanted = new Set(chosen);
+  } else {
+    const tracked = await prisma.trackedTab.findMany({
+      where: { userId: user.id, league: user.league, isTracked: true },
+      select: { gggTabId: true },
+    });
+    wanted = new Set(tracked.map((t) => t.gggTabId));
+  }
+
+  const tabs = staged.filter((t) => wanted.has(t.tabId));
+  if (tabs.length === 0) {
+    return { error: "Tick at least one tab to include in the closing snapshot." };
+  }
+
+  let endSnapshotId: string;
+  try {
+    const { snapshot } = await createSnapshot({
+      userId: user.id,
+      league: user.league,
+      tabs,
+      minCount: user.minCount,
+      liquidityHaircutPct: user.liquidityHaircutPct,
+      pinned: true,
+    });
+    endSnapshotId = snapshot.id;
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not take the closing snapshot." };
+  }
+
+  await prisma.snapshot.update({
+    where: { id: strategy.baselineSnapshotId },
+    data: { pinned: true },
+  });
+  await prisma.strategy.update({
+    where: { id: strategyId },
+    data: { endSnapshotId, endedAt: new Date() },
+  });
+
+  revalidatePath(`/strategies/${strategyId}`);
+  return { ok: "Run finished. Everything that changed is listed below." };
+}
+
+/** Re-open a finished run, for when the closing snapshot was taken too early. */
+export async function reopenRun(strategyId: string) {
+  const user = await requireUser();
+  await prisma.strategy.updateMany({
+    where: { id: strategyId, userId: user.id },
+    data: { endSnapshotId: null, endedAt: null },
+  });
+  revalidatePath(`/strategies/${strategyId}`);
+}
+
 export async function deleteStrategyInput(id: string) {
   const user = await requireUser();
   const input = await prisma.strategyInput.findUnique({
