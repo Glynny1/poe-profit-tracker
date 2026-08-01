@@ -6,7 +6,6 @@
  * port.
  */
 
-import EmbeddedPostgres from "embedded-postgres";
 import { existsSync, readFileSync, rmSync, unlinkSync } from "node:fs";
 import net from "node:net";
 import path from "node:path";
@@ -100,6 +99,21 @@ export async function startLocalDb({ reset = false } = {}): Promise<LocalDb> {
   }
 
   if (clearStaleLock()) console.log("Cleared a stale postmaster.pid from a previous run.");
+
+  // Imported here rather than at the top so that a missing binary produces this
+  // explanation instead of a module-resolution stack trace. It is an OPTIONAL
+  // dependency — a 108 MB platform binary that hosting platforms have no use for,
+  // and which must never be able to fail a deploy.
+  const EmbeddedPostgres = await import("embedded-postgres")
+    .then((m) => m.default)
+    .catch(() => {
+      throw new Error(
+        "embedded-postgres isn't installed, so there's no local database to start.\n" +
+          "It's an optional dependency. Install it with:\n" +
+          "  npm install embedded-postgres\n" +
+          "Or point DATABASE_URL at a Postgres server you already have.",
+      );
+    });
 
   const fresh = !existsSync(DATA_DIR);
   const pg = new EmbeddedPostgres({

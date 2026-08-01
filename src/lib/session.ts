@@ -14,28 +14,36 @@ export interface SessionData {
   userId?: string;
 }
 
-const secret = process.env.SESSION_SECRET;
-if (!secret || secret.length < 32) {
-  // Fail loudly at boot rather than silently signing cookies with a weak key.
-  throw new Error(
-    "SESSION_SECRET must be set to at least 32 characters. Generate one with:\n" +
-      '  node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
-  );
+// Checked when a session is actually used, not at module load. Next evaluates
+// every imported module during `next build`, so throwing at module scope made
+// SESSION_SECRET a build-time requirement and failed deploys before they ran.
+// It still refuses to sign anything with a weak key — just at the right moment.
+function sessionSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error(
+      "SESSION_SECRET must be set to at least 32 characters. Generate one with:\n" +
+        '  node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
+    );
+  }
+  return secret;
 }
 
-export const sessionOptions: SessionOptions = {
-  password: secret,
-  cookieName: "poe_profit_session",
-  cookieOptions: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30,
-  },
-};
+export function getSessionOptions(): SessionOptions {
+  return {
+    password: sessionSecret(),
+    cookieName: "poe_profit_session",
+    cookieOptions: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 30,
+    },
+  };
+}
 
 export async function getSession() {
-  return getIronSession<SessionData>(await cookies(), sessionOptions);
+  return getIronSession<SessionData>(await cookies(), getSessionOptions());
 }
 
 export async function getCurrentUser() {
