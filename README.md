@@ -76,25 +76,24 @@ npm run seed        # creates user "dev" / password "devpassword" with two snaps
 
 ### Later: hosting it for your friends
 
-Create a free [neon.tech](https://neon.tech) database, then in Vercel set these
-**four** environment variables before deploying:
+**[docs/deploying.md](docs/deploying.md) is a click-by-click walkthrough** written
+for someone with no prior experience. The short version:
 
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | Neon's **pooled** connection string (`-pooler` in the host) |
-| `SESSION_SECRET` | 32+ random characters — generate a fresh one, not your local one |
-| `INVITE_CODE` | whatever you'll give your friends |
-| `CONTACT_EMAIL` | your email, sent to poe.ninja in the User-Agent |
-
-Then run `npm run db:push` once locally with `DATABASE_URL` pointed at Neon, to
-create the tables.
+1. Free database at [neon.tech](https://neon.tech) — use the **pooled** connection
+   string (`-pooler` in the hostname).
+2. In Vercel, **Settings → Environment Variables**, set `DATABASE_URL`,
+   `SESSION_SECRET` (`npm run secret` generates one), `INVITE_CODE` and
+   `CONTACT_EMAIL`. Then **redeploy** — Vercel doesn't rebuild automatically when
+   these change.
+3. Put the same Neon string in `.env` as `PRODUCTION_DATABASE_URL` and run
+   `npm run db:push:prod` to create the tables.
 
 The build itself does **not** require any of these — it's verified to succeed with
 none set, so a missing variable shows up as a clear runtime error rather than a
 failed deploy. `embedded-postgres` is an optional dependency for the same reason:
 it's a 108 MB local-only binary, and a hosting platform failing to fetch it must
-never break a deploy. If you want to skip it entirely, set Vercel's install command
-to `npm install --omit=optional`.
+never break a deploy. To skip it entirely, set Vercel's install command to
+`npm install --omit=optional`.
 
 **4. Get your stash JSON.** While logged in to pathofexile.com, open this in your
 browser and copy the whole response:

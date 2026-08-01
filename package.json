@@ -18,7 +18,9 @@
     "db:local:reset": "tsx scripts/local-db.mts --reset",
     "smoke": "tsx scripts/smoke-test.mts",
     "seed": "tsx scripts/seed-dev.mts",
-    "dev:next-only": "next dev"
+    "dev:next-only": "next dev",
+    "db:push:prod": "tsx scripts/db-push-prod.mts",
+    "secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
