@@ -332,15 +332,16 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
                 ))}
               </tbody>
               {/* Both units on the total specifically: chaos is what the rows
-                  are priced in, divine is what the sum is legible in. */}
+                  are priced in, divine is what the sum is legible in. The pair
+                  is far wider than a single figure, so it is centred under the
+                  column rather than right-aligned, which would push it left
+                  across the two columns beside it. */}
               <tfoot>
                 <tr className="border-t border-[#262c3a]">
-                  <td className="pt-3 text-sm font-medium text-[#e4e8f0]">Total</td>
-                  <td className="pt-3 text-right text-sm text-[#7d8798]">
-                    {strategy.inputs.reduce((t, i) => t + i.qty, 0).toLocaleString("en-GB")}
+                  <td colSpan={3} className="pt-3 text-sm font-medium text-[#e4e8f0]">
+                    Total
                   </td>
-                  <td />
-                  <td className="pt-3 text-right text-sm font-semibold text-[#e4e8f0]">
+                  <td className="pt-3 text-center text-sm font-semibold text-[#e4e8f0]">
                     <ChaosAndDivine micro={costMicro} divineRateMicro={rate} icons={icons} />
                   </td>
                   <td />
